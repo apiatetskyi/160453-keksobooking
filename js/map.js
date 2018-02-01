@@ -28,7 +28,7 @@ var DATA = {
     checkouts: ['12:00', '13:00', '14:00'],
     features: ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'],
     description: '',
-    photos: ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.github.io/assets/images/tokyo/hotel1.jpg']
+    photos: ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.github.io/assets/images/tokyo/hotel2.jpg', 'http://o0.github.io/assets/images/tokyo/hotel3.jpg']
   }
 };
 
@@ -42,58 +42,149 @@ var getRandom = function (start, end) {
   return Math.floor(Math.random() * (end - start) + start);
 };
 
-var ads = [];
+/**
+ * Возвращает массив данных для объявлений
+ * @param  {Object} data
+ * @return {Array}
+ */
+var generateAdsData = function (data) {
+  var adsData = [];
 
-for (var i = 0; i < 8; i++) {
-  var locationX = getRandom(LocationProps.MIN_X, LocationProps.MAX_X);
-  var locationY = getRandom(LocationProps.MIN_Y, LocationProps.MAX_Y);
-  var ad = {
-    author: {
-      avatar: DATA.author.avatars[i]
-    },
+  for (var i = 0; i < data.author.avatars.length; i++) {
+    var locationX = getRandom(LocationProps.MIN_X, LocationProps.MAX_X);
+    var locationY = getRandom(LocationProps.MIN_Y, LocationProps.MAX_Y);
 
-    offer: {
-      title: DATA.offer.titles[i],
-      address: locationX + ', ' + locationY,
-      price: getRandom(MIN_PRICE, MAX_PRICE),
-      type: DATA.offer.types[getRandom(0, DATA.offer.types.length - 1)],
-      rooms: getRandom(MIN_ROOMS, MAX_ROOMS),
-      guests: getRandom(1, MAX_ROOMS * 2),
-      checkin: DATA.offer.checkins[getRandom(0, DATA.offer.checkins.length - 1)],
-      checkout: DATA.offer.checkouts[getRandom(0, DATA.offer.checkouts.length - 1)],
-      features: DATA.offer.features.slice(0, getRandom(1, DATA.offer.features.length - 1)),
-      description: '',
-      photos: DATA.offer.photos
-    },
+    var adData = {
+      author: {
+        avatar: data.author.avatars[i]
+      },
 
-    location: {
-      x: locationX,
-      y: locationY
-    }
-  };
+      offer: {
+        title: data.offer.titles[i],
+        address: locationX + ', ' + locationY,
+        price: getRandom(MIN_PRICE, MAX_PRICE),
+        type: data.offer.types[getRandom(0, data.offer.types.length - 1)],
+        rooms: getRandom(MIN_ROOMS, MAX_ROOMS),
+        guests: getRandom(1, MAX_ROOMS * 2),
+        checkin: data.offer.checkins[getRandom(0, data.offer.checkins.length - 1)],
+        checkout: data.offer.checkouts[getRandom(0, data.offer.checkouts.length - 1)],
+        features: data.offer.features.slice(0, getRandom(1, data.offer.features.length - 1)),
+        description: '',
+        photos: data.offer.photos
+      },
 
-  ads[i] = ad;
-}
+      location: {
+        x: locationX,
+        y: locationY
+      }
+    };
 
-var map = document.querySelector('.map');
-var mapPins = document.querySelector('.map__pins');
-var template = document.querySelector('template').content;
-var pinTemplate = template.querySelector('.map__pin');
-var fragment = document.createDocumentFragment();
+    adsData.push(adData);
+  }
 
-map.classList.remove('map--faded');
+  return adsData;
+};
 
-var renderPin = function (pinData) {
+/**
+ * Создает пин исходя из данных в объявлении
+ * @param  {Object} ad
+ * @return {Node}
+ */
+var createPin = function (ad) {
+  var pinTemplate = templates.querySelector('.map__pin');
   var pinElement = pinTemplate.cloneNode(true);
-  pinElement.style.left = pinData.location.x + 'px';
-  pinElement.style.top = pinData.location.y + 'px';
-  pinElement.querySelector('img').src = pinData.author.avatar;
+
+  pinElement.style.left = ad.location.x + 'px';
+  pinElement.style.top = ad.location.y + 'px';
+  pinElement.querySelector('img').src = ad.author.avatar;
+
   return pinElement;
 };
 
-for (var j = 0; j < ads.length; j++) {
-  fragment.appendChild(renderPin(ads[j]));
-}
+/**
+ * Рендерит пины для всех объявлений в заданом родительском элементе
+ * @param {Node} parentElement
+ */
+var renderPins = function (parentElement) {
+  var fragment = document.createDocumentFragment();
 
-mapPins.appendChild(fragment);
+  for (var j = 0; j < ads.length; j++) {
+    fragment.appendChild(createPin(ads[j]));
+  }
 
+  parentElement.appendChild(fragment);
+};
+
+/**
+ * Создает карточку первого объявления
+ * @param  {Object} data
+ * @return {Node}
+ */
+var createFirstCard = function (data) {
+  var firstAd = data[0];
+  var adElement = templates.querySelector('.popup').cloneNode(true);
+  var fragment = document.createDocumentFragment();
+  var housingTypes = {
+    flat: 'Квартира',
+    house: 'Дом',
+    bungalo: 'Бунгало'
+  };
+
+  /**
+   * Создает иконку доступного удобства в объявлении
+   * @param  {strinf} featureData
+   * @return {Node}
+   */
+  var createFeature = function (featureData) {
+    var li = document.createElement('li');
+    li.classList.add('feature', 'feature--' + featureData);
+
+    return li;
+  };
+
+  /**
+   * Создает фотографию к объявлению
+   * @param  {string} pictureData
+   * @return {Node}
+   */
+  var createPicture = function (pictureData) {
+    var li = document.createElement('li');
+    var img = document.createElement('img');
+    img.src = pictureData;
+    li.appendChild(img);
+
+    return li;
+  };
+
+  adElement.querySelector('h3').textContent = firstAd.offer.title;
+  adElement.querySelector('small').textContent = firstAd.offer.address;
+  adElement.querySelector('.popup__price').innerHTML = firstAd.offer.price + ' &#x20bd;/ночь';
+  adElement.querySelector('h4').textContent = housingTypes[firstAd.offer.type];
+  adElement.querySelector('p:nth-of-type(3)').textContent = firstAd.offer.rooms + ' комнаты для ' + firstAd.offer.guests + ' гостей';
+  adElement.querySelector('p:nth-of-type(4)').textContent = 'Заезд после ' + firstAd.offer.checkin + ' , выезд до ' + firstAd.offer.checkout;
+  adElement.querySelector('p:nth-of-type(5)').textContent = firstAd.offer.description;
+  adElement.querySelector('.popup__avatar').src = firstAd.author.avatar;
+
+
+  for (var i = 0; i < firstAd.offer.features.length; i++) {
+    fragment.appendChild(createFeature(firstAd.offer.features[i]));
+  }
+  adElement.querySelector('.popup__features').appendChild(fragment);
+
+  for (var j = 0; j < firstAd.offer.photos.length; j++) {
+    fragment.appendChild(createPicture(firstAd.offer.photos[j]));
+  }
+  adElement.querySelector('.popup__pictures').appendChild(fragment);
+
+  return adElement;
+};
+
+var ads = generateAdsData(DATA);
+var map = document.querySelector('.map');
+var mapPins = document.querySelector('.map__pins');
+var filters = document.querySelector('.map__filters-container');
+var templates = document.querySelector('template').content;
+
+map.classList.remove('map--faded');
+renderPins(mapPins);
+map.insertBefore(createFirstCard(ads), filters);
