@@ -1,5 +1,40 @@
 'use strict';
 
+var ADS_COUNT = 8;
+var AD_PARAMS = {
+  avatars: [
+    'img/avatars/user01.png',
+    'img/avatars/user02.png',
+    'img/avatars/user03.png',
+    'img/avatars/user04.png',
+    'img/avatars/user05.png',
+    'img/avatars/user06.png',
+    'img/avatars/user07.png',
+    'img/avatars/user08.png'
+  ],
+  titles: [
+    'Большая уютная квартира',
+    'Маленькая неуютная квартира',
+    'Огромный прекрасный дворец',
+    'Маленький ужасный дворец',
+    'Красивый гостевой домик',
+    'Некрасивый негостеприимный домик',
+    'Уютное бунгало далеко от моря',
+    'Неуютное бунгало по колено в воде'
+  ],
+  types: ['flat', 'house', 'bungalo'],
+  times: ['12:00', '13:00', '14:00'],
+  features: [
+    'wifi', 'dishwasher', 'parking',
+    'washer', 'elevator', 'conditioner'
+  ],
+  photos: [
+    'http://o0.github.io/assets/images/tokyo/hotel1.jpg',
+    'http://o0.github.io/assets/images/tokyo/hotel2.jpg',
+    'http://o0.github.io/assets/images/tokyo/hotel3.jpg'
+  ]
+};
+
 /**
  * Параметры координат для пинов на карте
  * @enum {number}
@@ -15,7 +50,7 @@ var LocationProps = {
  * Допустимое количество комнат
  * @enum {number}
  */
-var Rooms = {
+var RoomsParams = {
   MIN: 1,
   MAX: 5
 };
@@ -24,29 +59,18 @@ var Rooms = {
  * Допустимая стоимость жилья
  * @enum {number}
  */
-var Price = {
+var PriceParams = {
   MIN: 1000,
   MAX: 1000000
 };
 
 /**
  * Размеры пина
- * @enum {Object}
+ * @enum {number}
  */
 var PinSize = {
   WIDTH: 50,
   HEIGHT: 70,
-};
-
-var ADS_COUNT = 8;
-
-var DATA = {
-  avatars: ['img/avatars/user01.png', 'img/avatars/user02.png', 'img/avatars/user03.png', 'img/avatars/user04.png', 'img/avatars/user05.png', 'img/avatars/user06.png', 'img/avatars/user07.png', 'img/avatars/user08.png'],
-  titles: ['Большая уютная квартира', 'Маленькая неуютная квартира', 'Огромный прекрасный дворец', 'Маленький ужасный дворец', 'Красивый гостевой домик', 'Некрасивый негостеприимный домик', 'Уютное бунгало далеко от моря', 'Неуютное бунгало по колено в воде'],
-  types: ['flat', 'house', 'bungalo'],
-  times: ['12:00', '13:00', '14:00'],
-  features: ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'],
-  photos: ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.github.io/assets/images/tokyo/hotel2.jpg', 'http://o0.github.io/assets/images/tokyo/hotel3.jpg']
 };
 
 var adsData;
@@ -71,9 +95,17 @@ var getRandomNumber = function (start, end) {
 };
 
 /**
+ * Объект с данными для объявления
+ * @typedef {Object} AdData
+ * @property {Object} author Данные об авторе объявления
+ * @property {Object} offer Контент объявления
+ * @property {Object} location Координаты жилья на карте
+ */
+
+/**
  * Генерирует объект с данными для объявления
  * @param  {number} index
- * @return {Object}
+ * @return {AdData}
  */
 var generateAdData = function (index) {
   var locationX = getRandomNumber(LocationProps.MIN_X, LocationProps.MAX_X);
@@ -81,21 +113,21 @@ var generateAdData = function (index) {
 
   var adData = {
     author: {
-      avatar: DATA.avatars[index]
+      avatar: AD_PARAMS.avatars[index]
     },
 
     offer: {
-      title: DATA.titles[index],
+      title: AD_PARAMS.titles[index],
       address: locationX + ', ' + locationY,
-      price: getRandomNumber(Price.MIN, Price.MAX),
-      type: DATA.types[getRandomNumber(0, DATA.types.length - 1)],
-      rooms: getRandomNumber(Rooms.MIN, Rooms.MAX),
-      guests: getRandomNumber(1, Rooms.MAX * 2),
-      checkin: DATA.times[getRandomNumber(0, DATA.times.length - 1)],
-      checkout: DATA.times[getRandomNumber(0, DATA.times.length - 1)],
-      features: DATA.features.slice(0, getRandomNumber(1, DATA.features.length - 1)),
+      price: getRandomNumber(PriceParams.MIN, PriceParams.MAX),
+      type: AD_PARAMS.types[getRandomNumber(0, AD_PARAMS.types.length - 1)],
+      rooms: getRandomNumber(RoomsParams.MIN, RoomsParams.MAX),
+      guests: getRandomNumber(1, RoomsParams.MAX * 2),
+      checkin: AD_PARAMS.times[getRandomNumber(0, AD_PARAMS.times.length - 1)],
+      checkout: AD_PARAMS.times[getRandomNumber(0, AD_PARAMS.times.length - 1)],
+      features: AD_PARAMS.features.slice(0, getRandomNumber(1, AD_PARAMS.features.length - 1)),
       description: '',
-      photos: DATA.photos
+      photos: AD_PARAMS.photos
     },
 
     location: {
@@ -112,7 +144,7 @@ var generateAdData = function (index) {
  * @param  {number} adsNumber
  * @return {Array}
  */
-var collectData = function (adsNumber) {
+var getDataArray = function (adsNumber) {
   var result = [];
 
   for (var i = 0; i < adsNumber; i++) {
@@ -124,16 +156,16 @@ var collectData = function (adsNumber) {
 
 /**
  * Создает пин, исходя из данных в объявлении
- * @param  {Object} ad
+ * @param  {AdData} adData
  * @return {Node}
  */
-var createPin = function (ad) {
+var createPin = function (adData) {
   var pinTemplate = template.querySelector('.map__pin');
   var pinElement = pinTemplate.cloneNode(true);
 
-  pinElement.style.left = ad.location.x + 'px';
-  pinElement.style.top = ad.location.y - PinSize.HEIGHT / 2 + 'px';
-  pinElement.querySelector('img').src = ad.author.avatar;
+  pinElement.style.left = adData.location.x + 'px';
+  pinElement.style.top = adData.location.y - PinSize.HEIGHT / 2 + 'px';
+  pinElement.querySelector('img').src = adData.author.avatar;
 
   return pinElement;
 };
@@ -181,7 +213,7 @@ var createPicture = function (pictureData) {
 
 /**
  * Создает карточку объявления
- * @param  {Object} cardData
+ * @param  {AdData} cardData
  * @return {Node}
  */
 var createCard = function (cardData) {
@@ -198,18 +230,18 @@ var createCard = function (cardData) {
   adElement.querySelector('.popup__description').textContent = cardData.offer.description;
   adElement.querySelector('.popup__avatar').src = cardData.author.avatar;
 
-  for (var i = 0; i < cardData.offer.features.length; i++) {
-    featuresContainer.appendChild(createFeature(cardData.offer.features[i]));
-  }
+  cardData.offer.features.forEach(function (feature) {
+    featuresContainer.appendChild(createFeature(feature));
+  });
 
-  for (var j = 0; j < cardData.offer.photos.length; j++) {
-    picturesContainer.appendChild(createPicture(cardData.offer.photos[j]));
-  }
+  cardData.offer.photos.forEach(function (photo) {
+    picturesContainer.appendChild(createPicture(photo));
+  });
 
   return adElement;
 };
 
-adsData = collectData(ADS_COUNT);
+adsData = getDataArray(ADS_COUNT);
 map.classList.remove('map--faded');
 renderPins(adsData, pinsContainer);
 map.insertBefore(createCard(adsData[0]), filtersContainer);
