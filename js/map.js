@@ -86,12 +86,31 @@ var housingTypes = {
 
 /**
  * Возвращает случайное число в указанном диапазоне
- * @param  {number} start
- * @param  {number} end
+ * @param  {number} min
+ * @param  {number} max
  * @return {number}
  */
-var getRandomNumber = function (start, end) {
-  return Math.floor(Math.random() * (end - start) + start);
+var getRandomNumber = function (min, max) {
+  return Math.floor(Math.random() * (max + 1 - min) + min);
+};
+
+/**
+ * Склоняет слово «комнат» в зависимости от количества
+ * @param  {number} number
+ * @return {string}
+ */
+var declensionOfRoom = function (number) {
+  var result = '';
+
+  if (number === 1) {
+    result = number + ' комната';
+  } else if (number % 10 < 5) {
+    result = number + ' комнаты';
+  } else {
+    result = number + ' комнат';
+  }
+
+  return result;
 };
 
 /**
@@ -172,15 +191,15 @@ var createPin = function (adData) {
 
 /**
  * Рендерит пины для всех объявлений в заданом родительском элементе
- * @param {Array} data
+ * @param {Array} ads
  * @param {Node} parentElement
  */
-var renderPins = function (data, parentElement) {
+var renderPins = function (ads, parentElement) {
   var fragment = document.createDocumentFragment();
 
-  for (var j = 0; j < ADS_COUNT; j++) {
-    fragment.appendChild(createPin(data[j]));
-  }
+  ads.forEach(function (ad) {
+    fragment.appendChild(createPin(ad));
+  });
 
   parentElement.appendChild(fragment);
 };
@@ -225,7 +244,7 @@ var createCard = function (cardData) {
   adElement.querySelector('small').textContent = cardData.offer.address;
   adElement.querySelector('.popup__price').innerHTML = cardData.offer.price + ' &#x20bd;/ночь';
   adElement.querySelector('h4').textContent = housingTypes[cardData.offer.type];
-  adElement.querySelector('.popup__size').textContent = cardData.offer.rooms + ' комнаты для ' + cardData.offer.guests + ' гостей';
+  adElement.querySelector('.popup__size').textContent = declensionOfRoom(cardData.offer.rooms) + ' для ' + cardData.offer.guests + ' гостей';
   adElement.querySelector('.popup__time').textContent = 'Заезд после ' + cardData.offer.checkin + ' , выезд до ' + cardData.offer.checkout;
   adElement.querySelector('.popup__description').textContent = cardData.offer.description;
   adElement.querySelector('.popup__avatar').src = cardData.author.avatar;
