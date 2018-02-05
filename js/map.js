@@ -84,6 +84,18 @@ var housingTypes = {
   bungalo: 'Бунгало'
 };
 
+var roomForms = {
+  singular: 'комната',
+  few: 'комнаты',
+  many: 'комнат'
+};
+
+var guestForms = {
+  singular: 'гостя',
+  few: 'гостей',
+  many: 'гостей'
+};
+
 /**
  * Возвращает случайное число в указанном диапазоне
  * @param  {number} min
@@ -95,19 +107,22 @@ var getRandomNumber = function (min, max) {
 };
 
 /**
- * Склоняет слово «комнат» в зависимости от количества
+ * Склоняет существительное на основе числителя и переданных форм
  * @param  {number} number
+ * @param  {Object} forms
  * @return {string}
  */
-var declensionOfRoom = function (number) {
+var declensionOfNoun = function (number, forms) {
   var result = '';
 
-  if (number === 1) {
-    result = number + ' комната';
-  } else if (number % 10 < 5) {
-    result = number + ' комнаты';
+  if (number > 5 && number < 21) {
+    result = number + ' ' + forms.many;
+  } else if (number % 10 === 1) {
+    result = number + ' ' + forms.singular;
+  } else if (number % 10 < 5 && number % 10 > 0) {
+    result = number + ' ' + forms.few;
   } else {
-    result = number + ' комнат';
+    result = number + ' ' + forms.many;
   }
 
   return result;
@@ -244,7 +259,7 @@ var createCard = function (cardData) {
   adElement.querySelector('small').textContent = cardData.offer.address;
   adElement.querySelector('.popup__price').innerHTML = cardData.offer.price + ' &#x20bd;/ночь';
   adElement.querySelector('h4').textContent = housingTypes[cardData.offer.type];
-  adElement.querySelector('.popup__size').textContent = declensionOfRoom(cardData.offer.rooms) + ' для ' + cardData.offer.guests + ' гостей';
+  adElement.querySelector('.popup__size').textContent = declensionOfNoun(cardData.offer.rooms, roomForms) + ' для ' + declensionOfNoun(cardData.offer.guests, guestForms);
   adElement.querySelector('.popup__time').textContent = 'Заезд после ' + cardData.offer.checkin + ' , выезд до ' + cardData.offer.checkout;
   adElement.querySelector('.popup__description').textContent = cardData.offer.description;
   adElement.querySelector('.popup__avatar').src = cardData.author.avatar;
