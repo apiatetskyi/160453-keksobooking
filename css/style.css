@@ -452,12 +452,30 @@ textarea:focus
     margin-bottom: .3em;
 }
 
+.popup__pictures
+{
+    display: flex;
+}
+
 .popup__pictures li
 {
-    display: inline-block;
-
-    vertical-align: middle;
+    flex: 1 1 33.333%;
+    height: 45px;
+    overflow: hidden;
 }
+
+.popup__pictures li:not(:last-child)
+{
+    margin-right: 5px;
+}
+
+.popup__pictures img
+{
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
+
 
 .popup__avatar
 {
