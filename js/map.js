@@ -1,8 +1,9 @@
 'use strict';
 
 var ADS_COUNT = 8;
-var AD_PARAMS = {
-  avatars: [
+
+var adParams = {
+  AVATARS: [
     'img/avatars/user01.png',
     'img/avatars/user02.png',
     'img/avatars/user03.png',
@@ -12,7 +13,7 @@ var AD_PARAMS = {
     'img/avatars/user07.png',
     'img/avatars/user08.png'
   ],
-  titles: [
+  TITLES: [
     'Большая уютная квартира',
     'Маленькая неуютная квартира',
     'Огромный прекрасный дворец',
@@ -22,13 +23,13 @@ var AD_PARAMS = {
     'Уютное бунгало далеко от моря',
     'Неуютное бунгало по колено в воде'
   ],
-  types: ['flat', 'house', 'bungalo'],
-  times: ['12:00', '13:00', '14:00'],
-  features: [
+  TYPES: ['flat', 'house', 'bungalo'],
+  TIMES: ['12:00', '13:00', '14:00'],
+  FEATURES: [
     'wifi', 'dishwasher', 'parking',
     'washer', 'elevator', 'conditioner'
   ],
-  photos: [
+  PHOTOS: [
     'http://o0.github.io/assets/images/tokyo/hotel1.jpg',
     'http://o0.github.io/assets/images/tokyo/hotel2.jpg',
     'http://o0.github.io/assets/images/tokyo/hotel3.jpg'
@@ -145,23 +146,23 @@ var generateAdData = function (index) {
   var locationX = getRandomNumber(LocationProps.MIN_X, LocationProps.MAX_X);
   var locationY = getRandomNumber(LocationProps.MIN_Y, LocationProps.MAX_Y);
 
-  var adData = {
+  return {
     author: {
-      avatar: AD_PARAMS.avatars[index]
+      avatar: adParams.AVATARS[index]
     },
 
     offer: {
-      title: AD_PARAMS.titles[index],
+      title: adParams.TITLES[index],
       address: locationX + ', ' + locationY,
       price: getRandomNumber(PriceParams.MIN, PriceParams.MAX),
-      type: AD_PARAMS.types[getRandomNumber(0, AD_PARAMS.types.length - 1)],
+      type: adParams.TYPES[getRandomNumber(0, adParams.TYPES.length - 1)],
       rooms: getRandomNumber(RoomsParams.MIN, RoomsParams.MAX),
       guests: getRandomNumber(1, RoomsParams.MAX * 2),
-      checkin: AD_PARAMS.times[getRandomNumber(0, AD_PARAMS.times.length - 1)],
-      checkout: AD_PARAMS.times[getRandomNumber(0, AD_PARAMS.times.length - 1)],
-      features: AD_PARAMS.features.slice(0, getRandomNumber(1, AD_PARAMS.features.length - 1)),
+      checkin: adParams.TIMES[getRandomNumber(0, adParams.TIMES.length - 1)],
+      checkout: adParams.TIMES[getRandomNumber(0, adParams.TIMES.length - 1)],
+      features: adParams.FEATURES.slice(0, getRandomNumber(1, adParams.FEATURES.length - 1)),
       description: '',
-      photos: AD_PARAMS.photos
+      photos: adParams.PHOTOS
     },
 
     location: {
@@ -169,8 +170,6 @@ var generateAdData = function (index) {
       y: locationY
     }
   };
-
-  return adData;
 };
 
 /**
