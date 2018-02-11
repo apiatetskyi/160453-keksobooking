@@ -37,6 +37,14 @@ var adParams = {
 };
 
 /**
+ * @enum {number}
+*/
+var KeyCodes = {
+  ENTER: 13,
+  ESCAPE: 27
+};
+
+/**
  * Параметры координат для пинов на карте
  * @enum {number}
  */
@@ -74,11 +82,25 @@ var PinSize = {
   HEIGHT: 70,
 };
 
+/**
+ * Размеры главного пина
+ * @enum {number}
+*/
+var MainPinSize = {
+  WIDTH: 65,
+  HEIGHT: 65,
+  POINTER_HEIGHT: 22
+};
+
 var adsData;
 var map = document.querySelector('.map');
+var mainPin = map.querySelector('.map__pin--main');
 var pinsContainer = document.querySelector('.map__pins');
-var filtersContainer = document.querySelector('.map__filters-container');
 var template = document.querySelector('template').content;
+var notice = document.querySelector('.notice');
+var noticeForm = notice.querySelector('.notice__form');
+var noticeFieldsets = noticeForm.querySelectorAll('fieldset');
+var noticeAddress = notice.querySelector('#address');
 var housingTypes = {
   flat: 'Квартира',
   house: 'Дом',
@@ -168,7 +190,9 @@ var generateAdData = function (index) {
     location: {
       x: locationX,
       y: locationY
-    }
+    },
+
+    index: index
   };
 };
 
@@ -199,6 +223,7 @@ var createPin = function (adData) {
   pinElement.style.left = adData.location.x + 'px';
   pinElement.style.top = adData.location.y - PinSize.HEIGHT / 2 + 'px';
   pinElement.querySelector('img').src = adData.author.avatar;
+  pinElement.dataset.index = adData.index;
 
   return pinElement;
 };
@@ -251,6 +276,7 @@ var createPicture = function (pictureData) {
  */
 var createCard = function (cardData) {
   var adElement = template.querySelector('.popup').cloneNode(true);
+  var close = adElement.querySelector('.popup__close');
   var featuresContainer = adElement.querySelector('.popup__features');
   var picturesContainer = adElement.querySelector('.popup__pictures');
 
@@ -271,10 +297,75 @@ var createCard = function (cardData) {
     picturesContainer.appendChild(createPicture(photo));
   });
 
+  close.addEventListener('click', function () {
+    adElement.remove();
+  });
+
   return adElement;
 };
 
+/**
+ * Изменяет активное состояние полей формы
+ * @param {NodeList} nodes
+ * @param {boolean} state
+ */
+var activateFormFields = function (nodes, state) {
+  nodes.forEach(function (node) {
+    node.disabled = state;
+  });
+};
+
+/**
+ * Активирует страницу
+ */
+var activatePage = function () {
+  map.classList.remove('map--faded');
+  noticeForm.classList.remove('notice__form--disabled');
+  activateFormFields(noticeFieldsets, false);
+};
+
+/**
+ * Обработчик нажатия на Escape
+ * @param {Object} evt
+ */
+var escapeKeydownHandler = function (evt) {
+  if (evt.keyCode === KeyCodes.ESCAPE) {
+    map.querySelector('.popup').remove();
+    document.removeEventListener('keydown', escapeKeydownHandler);
+  }
+};
+
+/**
+ * Обработчик mouseup на главном пине
+ */
+var mainPinMouseupHandler = function () {
+  activatePage();
+  renderPins(adsData, pinsContainer);
+  noticeAddress.value = (mainPin.offsetLeft + MainPinSize.WIDTH / 2) + ', ' + (mainPin.offsetTop + MainPinSize.HEIGHT + MainPinSize.POINTER_HEIGHT);
+  mainPin.removeEventListener('mouseup', mainPinMouseupHandler);
+};
+
+/**
+ * Обработчик клика на контейнере с пинами. Используется делегирование события
+ * @param {Object} evt
+ */
+var pinsContainerClickHandler = function (evt) {
+  var parentElement = evt.target.parentElement;
+  var dataIndex = parentElement.dataset.index || evt.target.dataset.index;
+
+  if (dataIndex) {
+    if (map.querySelector('.popup')) {
+      map.querySelector('.popup').remove();
+    }
+
+    map.appendChild(createCard(adsData[dataIndex]));
+    document.addEventListener('keydown', escapeKeydownHandler);
+  }
+};
+
 adsData = getDataArray(ADS_COUNT);
-map.classList.remove('map--faded');
-renderPins(adsData, pinsContainer);
-map.insertBefore(createCard(adsData[0]), filtersContainer);
+
+activateFormFields(noticeFieldsets, true);
+
+mainPin.addEventListener('mouseup', mainPinMouseupHandler);
+pinsContainer.addEventListener('click', pinsContainerClickHandler);
