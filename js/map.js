@@ -37,6 +37,14 @@ var adParams = {
 };
 
 /**
+ * @enum {number}
+*/
+var KeyCodes = {
+  ENTER: 13,
+  ESC: 27
+};
+
+/**
  * Параметры координат для пинов на карте
  * @enum {number}
  */
@@ -75,10 +83,15 @@ var PinSize = {
 };
 
 var adsData;
+var currentCard;
 var map = document.querySelector('.map');
+var mainPin = map.querySelector('.map__pin--main');
 var pinsContainer = document.querySelector('.map__pins');
-var filtersContainer = document.querySelector('.map__filters-container');
 var template = document.querySelector('template').content;
+var notice = document.querySelector('.notice');
+var noticeForm = notice.querySelector('.notice__form');
+var noticeFieldsets = noticeForm.querySelectorAll('fieldset');
+var noticeAddress = notice.querySelector('#address');
 var housingTypes = {
   flat: 'Квартира',
   house: 'Дом',
@@ -199,6 +212,12 @@ var createPin = function (adData) {
   pinElement.style.left = adData.location.x + 'px';
   pinElement.style.top = adData.location.y - PinSize.HEIGHT / 2 + 'px';
   pinElement.querySelector('img').src = adData.author.avatar;
+  pinElement.addEventListener('click', function () {
+    closeCurrentCard();
+    currentCard = createCard(adData);
+    map.appendChild(currentCard);
+    document.addEventListener('keydown', escKeydownHandler);
+  });
 
   return pinElement;
 };
@@ -251,6 +270,7 @@ var createPicture = function (pictureData) {
  */
 var createCard = function (cardData) {
   var adElement = template.querySelector('.popup').cloneNode(true);
+  var close = adElement.querySelector('.popup__close');
   var featuresContainer = adElement.querySelector('.popup__features');
   var picturesContainer = adElement.querySelector('.popup__pictures');
 
@@ -271,10 +291,71 @@ var createCard = function (cardData) {
     picturesContainer.appendChild(createPicture(photo));
   });
 
+  close.addEventListener('click', function () {
+    closeCurrentCard();
+  });
+
   return adElement;
 };
 
+/**
+ * Переключает активное состояние полей форм
+ * @param {NodeList} nodes
+ * @param {boolean} state
+ */
+var toggleFormFieldsState = function (nodes, state) {
+  nodes.forEach(function (node) {
+    node.disabled = state;
+  });
+};
+
+/**
+ * Активирует страницу
+ */
+var activatePage = function () {
+  map.classList.remove('map--faded');
+  noticeForm.classList.remove('notice__form--disabled');
+  toggleFormFieldsState(noticeFieldsets, false);
+};
+
+var closeCurrentCard = function () {
+  if (currentCard) {
+    map.removeChild(currentCard);
+    currentCard = null;
+    document.removeEventListener('keydown', escKeydownHandler);
+  }
+};
+
+/**
+ * Обработчик нажатия на Escape
+ * @param {Object} evt
+ */
+var escKeydownHandler = function (evt) {
+  if (evt.keyCode === KeyCodes.ESC) {
+    closeCurrentCard();
+  }
+};
+
+/**
+ * Устанавливает координаты главного пина в поля формы «Адрес»
+ * @param {number} x
+ * @param {number} y
+ */
+var setLocation = function (x, y) {
+  noticeAddress.value = x + ', ' + y;
+};
+
+/**
+ * Обработчик mouseup на главном пине
+ * @param {Object} evt
+ */
+var mainPinMouseupHandler = function () {
+  activatePage();
+  renderPins(adsData, pinsContainer);
+  setLocation(mainPin.offsetLeft, mainPin.offsetTop);
+  mainPin.removeEventListener('mouseup', mainPinMouseupHandler);
+};
+
 adsData = getDataArray(ADS_COUNT);
-map.classList.remove('map--faded');
-renderPins(adsData, pinsContainer);
-map.insertBefore(createCard(adsData[0]), filtersContainer);
+toggleFormFieldsState(noticeFieldsets, true);
+mainPin.addEventListener('mouseup', mainPinMouseupHandler);
