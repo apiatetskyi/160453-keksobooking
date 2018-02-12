@@ -41,7 +41,7 @@ var adParams = {
 */
 var KeyCodes = {
   ENTER: 13,
-  ESCAPE: 27
+  ESC: 27
 };
 
 /**
@@ -93,6 +93,7 @@ var MainPinSize = {
 };
 
 var adsData;
+var currentCard;
 var map = document.querySelector('.map');
 var mainPin = map.querySelector('.map__pin--main');
 var pinsContainer = document.querySelector('.map__pins');
@@ -190,9 +191,7 @@ var generateAdData = function (index) {
     location: {
       x: locationX,
       y: locationY
-    },
-
-    index: index
+    }
   };
 };
 
@@ -223,7 +222,12 @@ var createPin = function (adData) {
   pinElement.style.left = adData.location.x + 'px';
   pinElement.style.top = adData.location.y - PinSize.HEIGHT / 2 + 'px';
   pinElement.querySelector('img').src = adData.author.avatar;
-  pinElement.dataset.index = adData.index;
+  pinElement.addEventListener('click', function () {
+    closeCurrentCard();
+    currentCard = createCard(adData);
+    map.appendChild(currentCard);
+    document.addEventListener('keydown', escKeydownHandler);
+  });
 
   return pinElement;
 };
@@ -298,18 +302,18 @@ var createCard = function (cardData) {
   });
 
   close.addEventListener('click', function () {
-    adElement.remove();
+    closeCurrentCard();
   });
 
   return adElement;
 };
 
 /**
- * Изменяет активное состояние полей формы
+ * Переключает активное состояние полей форм
  * @param {NodeList} nodes
  * @param {boolean} state
  */
-var activateFormFields = function (nodes, state) {
+var toggleFormFieldsState = function (nodes, state) {
   nodes.forEach(function (node) {
     node.disabled = state;
   });
@@ -321,51 +325,47 @@ var activateFormFields = function (nodes, state) {
 var activatePage = function () {
   map.classList.remove('map--faded');
   noticeForm.classList.remove('notice__form--disabled');
-  activateFormFields(noticeFieldsets, false);
+  toggleFormFieldsState(noticeFieldsets, false);
+};
+
+var closeCurrentCard = function () {
+  if (currentCard) {
+    map.removeChild(currentCard);
+    currentCard = null;
+  }
 };
 
 /**
  * Обработчик нажатия на Escape
  * @param {Object} evt
  */
-var escapeKeydownHandler = function (evt) {
-  if (evt.keyCode === KeyCodes.ESCAPE) {
-    map.querySelector('.popup').remove();
-    document.removeEventListener('keydown', escapeKeydownHandler);
+var escKeydownHandler = function (evt) {
+  if (evt.keyCode === KeyCodes.ESC) {
+    closeCurrentCard();
+    document.removeEventListener('keydown', escKeydownHandler);
   }
+};
+
+/**
+ * Устанавливает координаты главного пина в поля формы «Адрес»
+ * @param {Object} evt
+ */
+var setLocation = function (evt) {
+  noticeAddress.value = (evt.currentTarget.offsetLeft + MainPinSize.WIDTH / 2) + ', ' +
+    (evt.currentTarget.offsetTop + MainPinSize.HEIGHT + MainPinSize.POINTER_HEIGHT);
 };
 
 /**
  * Обработчик mouseup на главном пине
+ * @param {Object} evt
  */
-var mainPinMouseupHandler = function () {
+var mainPinMouseupHandler = function (evt) {
   activatePage();
   renderPins(adsData, pinsContainer);
-  noticeAddress.value = (mainPin.offsetLeft + MainPinSize.WIDTH / 2) + ', ' + (mainPin.offsetTop + MainPinSize.HEIGHT + MainPinSize.POINTER_HEIGHT);
+  setLocation(evt);
   mainPin.removeEventListener('mouseup', mainPinMouseupHandler);
 };
 
-/**
- * Обработчик клика на контейнере с пинами. Используется делегирование события
- * @param {Object} evt
- */
-var pinsContainerClickHandler = function (evt) {
-  var parentElement = evt.target.parentElement;
-  var dataIndex = parentElement.dataset.index || evt.target.dataset.index;
-
-  if (dataIndex) {
-    if (map.querySelector('.popup')) {
-      map.querySelector('.popup').remove();
-    }
-
-    map.appendChild(createCard(adsData[dataIndex]));
-    document.addEventListener('keydown', escapeKeydownHandler);
-  }
-};
-
 adsData = getDataArray(ADS_COUNT);
-
-activateFormFields(noticeFieldsets, true);
-
+toggleFormFieldsState(noticeFieldsets, true);
 mainPin.addEventListener('mouseup', mainPinMouseupHandler);
-pinsContainer.addEventListener('click', pinsContainerClickHandler);
