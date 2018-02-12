@@ -332,6 +332,7 @@ var closeCurrentCard = function () {
   if (currentCard) {
     map.removeChild(currentCard);
     currentCard = null;
+    document.removeEventListener('keydown', escKeydownHandler);
   }
 };
 
@@ -342,17 +343,15 @@ var closeCurrentCard = function () {
 var escKeydownHandler = function (evt) {
   if (evt.keyCode === KeyCodes.ESC) {
     closeCurrentCard();
-    document.removeEventListener('keydown', escKeydownHandler);
   }
 };
 
 /**
  * Устанавливает координаты главного пина в поля формы «Адрес»
- * @param {Object} evt
  */
-var setLocation = function (evt) {
-  noticeAddress.value = (evt.currentTarget.offsetLeft + MainPinSize.WIDTH / 2) + ', ' +
-    (evt.currentTarget.offsetTop + MainPinSize.HEIGHT + MainPinSize.POINTER_HEIGHT);
+var setLocation = function () {
+  noticeAddress.value = (mainPin.offsetLeft + MainPinSize.WIDTH / 2) + ', ' +
+    (mainPin.offsetTop + MainPinSize.HEIGHT + MainPinSize.POINTER_HEIGHT);
 };
 
 /**
