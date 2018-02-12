@@ -82,16 +82,6 @@ var PinSize = {
   HEIGHT: 70,
 };
 
-/**
- * Размеры главного пина
- * @enum {number}
-*/
-var MainPinSize = {
-  WIDTH: 65,
-  HEIGHT: 65,
-  POINTER_HEIGHT: 22
-};
-
 var adsData;
 var currentCard;
 var map = document.querySelector('.map');
@@ -348,20 +338,21 @@ var escKeydownHandler = function (evt) {
 
 /**
  * Устанавливает координаты главного пина в поля формы «Адрес»
+ * @param {number} x
+ * @param {number} y
  */
-var setLocation = function () {
-  noticeAddress.value = (mainPin.offsetLeft + MainPinSize.WIDTH / 2) + ', ' +
-    (mainPin.offsetTop + MainPinSize.HEIGHT + MainPinSize.POINTER_HEIGHT);
+var setLocation = function (x, y) {
+  noticeAddress.value = x + ', ' + y;
 };
 
 /**
  * Обработчик mouseup на главном пине
  * @param {Object} evt
  */
-var mainPinMouseupHandler = function (evt) {
+var mainPinMouseupHandler = function () {
   activatePage();
   renderPins(adsData, pinsContainer);
-  setLocation(evt);
+  setLocation(mainPin.offsetLeft, mainPin.offsetTop);
   mainPin.removeEventListener('mouseup', mainPinMouseupHandler);
 };
 
