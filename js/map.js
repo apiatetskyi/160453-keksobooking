@@ -82,16 +82,30 @@ var PinSize = {
   HEIGHT: 70,
 };
 
+var SyncParams = {
+  ROOMS: '100',
+  CAPACITY: '0'
+};
+
 var adsData;
 var currentCard;
+var similarPins = [];
 var map = document.querySelector('.map');
 var mainPin = map.querySelector('.map__pin--main');
 var pinsContainer = document.querySelector('.map__pins');
 var template = document.querySelector('template').content;
-var notice = document.querySelector('.notice');
-var noticeForm = notice.querySelector('.notice__form');
+var noticeForm = document.querySelector('.notice__form');
 var noticeFieldsets = noticeForm.querySelectorAll('fieldset');
-var noticeAddress = notice.querySelector('#address');
+var noticeInputs = noticeForm.querySelectorAll('.form__element input');
+var resetButton = noticeForm.querySelector('.form__reset');
+var address = noticeForm.querySelector('#address');
+var housingType = noticeForm.querySelector('#type');
+var pricePerNight = noticeForm.querySelector('#price');
+var checkInTime = noticeForm.querySelector('#timein');
+var checkOutTime = noticeForm.querySelector('#timeout');
+var roomNumber = noticeForm.querySelector('#room_number');
+var housingCapacity = noticeForm.querySelector('#capacity');
+
 var housingTypes = {
   flat: 'Квартира',
   house: 'Дом',
@@ -108,6 +122,20 @@ var guestForms = {
   singular: 'гостя',
   few: 'гостей',
   many: 'гостей'
+};
+
+var typePrices = {
+  bungalo: 0,
+  flat: 1000,
+  house: 5000,
+  palace: 10000
+};
+
+var roomNumberDependency = {
+  '1': ['1'],
+  '2': ['1', '2'],
+  '3': ['1', '2', '3'],
+  '100': ['0'],
 };
 
 /**
@@ -219,6 +247,8 @@ var createPin = function (adData) {
     document.addEventListener('keydown', escKeydownHandler);
   });
 
+  similarPins.push(pinElement);
+
   return pinElement;
 };
 
@@ -304,7 +334,7 @@ var createCard = function (cardData) {
  * @param {boolean} state
  */
 var toggleFormFieldsState = function (nodes, state) {
-  nodes.forEach(function (node) {
+  Array.prototype.forEach.call(nodes, function (node) {
     node.disabled = state;
   });
 };
@@ -316,8 +346,48 @@ var activatePage = function () {
   map.classList.remove('map--faded');
   noticeForm.classList.remove('notice__form--disabled');
   toggleFormFieldsState(noticeFieldsets, false);
+
+  housingType.addEventListener('change', housingTypeChangeHandler);
+  checkInTime.addEventListener('change', checkInTimeChangeHandler);
+  checkOutTime.addEventListener('change', checkOutTimeChangeHandler);
+  roomNumber.addEventListener('change', roomNumberChangeHandler);
+  resetButton.addEventListener('click', resetButtonClickHandler);
+  noticeInputs.forEach(function (input) {
+    input.addEventListener('keyup', inputKeyupHandler);
+  });
+  noticeForm.addEventListener('invalid', noticeFormInvalidHandler, true);
 };
 
+/**
+ * Деактивирует страницу
+*/
+var deactivatePage = function () {
+  noticeInputs.forEach(function (input) {
+    input.classList.remove('invalid');
+  });
+  closeCurrentCard();
+  similarPins.forEach(function (pin) {
+    pinsContainer.removeChild(pin);
+  });
+  similarPins = [];
+  map.classList.add('map--faded');
+  noticeForm.classList.add('notice__form--disabled');
+  toggleFormFieldsState(noticeFieldsets, true);
+
+  housingType.removeEventListener('change', housingTypeChangeHandler);
+  checkInTime.removeEventListener('change', checkInTimeChangeHandler);
+  checkOutTime.removeEventListener('change', checkOutTimeChangeHandler);
+  roomNumber.removeEventListener('change', roomNumberChangeHandler);
+  resetButton.removeEventListener('click', resetButtonClickHandler);
+  noticeInputs.forEach(function (input) {
+    input.removeEventListener('keyup', inputKeyupHandler);
+  });
+  noticeForm.removeEventListener('invalid', noticeFormInvalidHandler, true);
+};
+
+/**
+ * Закрывает текущую карточку объявления
+*/
 var closeCurrentCard = function () {
   if (currentCard) {
     map.removeChild(currentCard);
@@ -342,18 +412,103 @@ var escKeydownHandler = function (evt) {
  * @param {number} y
  */
 var setLocation = function (x, y) {
-  noticeAddress.value = x + ', ' + y;
+  address.value = x + ', ' + y;
+};
+
+/**
+ * Синхронизирует данные селекта с атрибутом инпута на основе словаря
+ * @param {Node} select
+ * @param {Node} input
+ * @param {Object} dictionary
+ * @param {string} attribute
+ */
+var syncInputToSelect = function (select, input, dictionary, attribute) {
+  input[attribute] = dictionary[select.value];
+};
+
+/**
+ * Синхронизирует поля с одиноковыми value или по кастомным правилам
+ * @param {Node} srcElement
+ * @param {Node} outputElement
+ * @param {Function} customSyncRule
+ */
+var syncSelects = function (srcElement, outputElement, customSyncRule) {
+  outputElement.value = srcElement.value;
+  if (customSyncRule) {
+    customSyncRule();
+  }
 };
 
 /**
  * Обработчик mouseup на главном пине
- * @param {Object} evt
  */
 var mainPinMouseupHandler = function () {
   activatePage();
   renderPins(adsData, pinsContainer);
   setLocation(mainPin.offsetLeft, mainPin.offsetTop);
-  mainPin.removeEventListener('mouseup', mainPinMouseupHandler);
+  syncInputToSelect(housingType, pricePerNight, typePrices, 'min');
+};
+
+/**
+ * Обработчик неправильных данных в форме
+ * @param {Object} evt
+ */
+var noticeFormInvalidHandler = function (evt) {
+  evt.target.classList.add('invalid');
+};
+
+/**
+ * Обработчик изменения значения количества комнат
+ */
+var roomNumberChangeHandler = function () {
+  syncSelects(roomNumber, housingCapacity, function () {
+    if (roomNumber.value === SyncParams.ROOMS) {
+      housingCapacity.value = SyncParams.CAPACITY;
+    }
+  });
+
+  Array.prototype.forEach.call(housingCapacity.options, function (option) {
+    option.disabled = !roomNumberDependency[roomNumber.value].includes(option.value);
+  });
+};
+
+/**
+ * Обработчик изменения типа жилья
+*/
+var housingTypeChangeHandler = function () {
+  syncInputToSelect(housingType, pricePerNight, typePrices, 'min');
+};
+
+/**
+ * Обработчик изменения времени заезда
+*/
+var checkInTimeChangeHandler = function () {
+  syncSelects(checkInTime, checkOutTime);
+};
+
+/**
+ * Обработчик изменения времени выезда
+*/
+var checkOutTimeChangeHandler = function () {
+  syncSelects(checkOutTime, checkInTime);
+};
+
+/**
+ * Обработчик ввода данных в инпут
+ * @param {Object} evt
+ */
+var inputKeyupHandler = function (evt) {
+  if (evt.target.checkValidity()) {
+    evt.target.classList.remove('invalid');
+    evt.target.removeEventListener('keyup', inputKeyupHandler);
+  }
+};
+
+/**
+ * Обработчик клика по кнопке сброса формы
+*/
+var resetButtonClickHandler = function () {
+  deactivatePage();
 };
 
 adsData = getDataArray(ADS_COUNT);
