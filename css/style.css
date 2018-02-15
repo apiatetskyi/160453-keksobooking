@@ -872,3 +872,9 @@ textarea:focus
 {
     background-position: -10px -10px;
 }
+
+.invalid
+{
+  background-color: #fdf4f2 !important;
+  box-shadow: inset 0 0 0 2px #ff7b7b;
+}
