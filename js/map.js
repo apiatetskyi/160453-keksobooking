@@ -82,11 +82,6 @@ var PinSize = {
   HEIGHT: 70,
 };
 
-var SyncParams = {
-  ROOMS: '100',
-  CAPACITY: '0'
-};
-
 var adsData;
 var currentCard;
 var similarPins = [];
@@ -362,9 +357,6 @@ var activatePage = function () {
  * Деактивирует страницу
 */
 var deactivatePage = function () {
-  noticeInputs.forEach(function (input) {
-    input.classList.remove('invalid');
-  });
   closeCurrentCard();
   similarPins.forEach(function (pin) {
     pinsContainer.removeChild(pin);
@@ -380,6 +372,7 @@ var deactivatePage = function () {
   roomNumber.removeEventListener('change', roomNumberChangeHandler);
   resetButton.removeEventListener('click', resetButtonClickHandler);
   noticeInputs.forEach(function (input) {
+    input.classList.remove('invalid');
     input.removeEventListener('keyup', inputKeyupHandler);
   });
   noticeForm.removeEventListener('invalid', noticeFormInvalidHandler, true);
@@ -433,9 +426,10 @@ var syncInputToSelect = function (select, input, dictionary, attribute) {
  * @param {Function} customSyncRule
  */
 var syncSelects = function (srcElement, outputElement, customSyncRule) {
-  outputElement.value = srcElement.value;
-  if (customSyncRule) {
+  if (typeof customSyncRule === 'function') {
     customSyncRule();
+  } else {
+    outputElement.value = srcElement.value;
   }
 };
 
@@ -447,6 +441,9 @@ var mainPinMouseupHandler = function () {
   renderPins(adsData, pinsContainer);
   setLocation(mainPin.offsetLeft, mainPin.offsetTop);
   syncInputToSelect(housingType, pricePerNight, typePrices, 'min');
+  syncSelects(roomNumber, housingCapacity, function () {
+    housingCapacity.value = roomNumberDependency[roomNumber.value][0];
+  });
 };
 
 /**
@@ -462,9 +459,7 @@ var noticeFormInvalidHandler = function (evt) {
  */
 var roomNumberChangeHandler = function () {
   syncSelects(roomNumber, housingCapacity, function () {
-    if (roomNumber.value === SyncParams.ROOMS) {
-      housingCapacity.value = SyncParams.CAPACITY;
-    }
+    housingCapacity.value = roomNumberDependency[roomNumber.value][0];
   });
 
   Array.prototype.forEach.call(housingCapacity.options, function (option) {
@@ -500,7 +495,6 @@ var checkOutTimeChangeHandler = function () {
 var inputKeyupHandler = function (evt) {
   if (evt.target.checkValidity()) {
     evt.target.classList.remove('invalid');
-    evt.target.removeEventListener('keyup', inputKeyupHandler);
   }
 };
 
