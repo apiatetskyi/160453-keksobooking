@@ -22,10 +22,7 @@
     pin.style.top = adData.location.y - PinSize.HEIGHT / 2 + 'px';
     pin.querySelector('img').src = adData.author.avatar;
     pin.addEventListener('click', function () {
-      window.map.closeCard();
-      window.map.currentCard = window.card.create(adData);
-      window.map.element.appendChild(window.map.currentCard);
-      document.addEventListener('keydown', window.map.escKeydownHandler);
+      window.card.open(adData);
     });
 
     return pin;

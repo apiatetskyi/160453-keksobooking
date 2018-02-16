@@ -3,15 +3,6 @@
 (function () {
   var ADS_COUNT = 8;
 
-  /**
-   * @enum {number}
-   */
-  var KeyCodes = {
-    ENTER: 13,
-    ESC: 27
-  };
-
-  var currentCard;
   var adsData;
   var pins = [];
   var map = document.querySelector('.map');
@@ -29,7 +20,7 @@
    * Деактивирует страницу
    */
   var deactivate = function () {
-    window.card.close();
+    window.card();
     pins.forEach(function (pin) {
       pinsContainer.removeChild(pin);
     });
@@ -62,8 +53,9 @@
     var fragment = document.createDocumentFragment();
 
     ads.forEach(function (ad) {
-      pins.push(window.pin(ad));
-      fragment.appendChild(window.pin(ad));
+      var pin = window.pin(ad);
+      pins.push(pin);
+      fragment.appendChild(pin);
     });
 
     parentElement.appendChild(fragment);
@@ -88,36 +80,12 @@
     setLocation(mainPin.offsetLeft, mainPin.offsetTop);
   };
 
-  /**
-   * Закрывает текущую карточку объявления
-   */
-  var closeCard = function () {
-    if (window.map.currentCard) {
-      map.removeChild(window.map.currentCard);
-      window.map.currentCard = null;
-      document.removeEventListener('keydown', escKeydownHandler);
-    }
-  };
-
-  /**
-   * Обработчик нажатия на Escape
-   * @param {Object} evt
-   */
-  var escKeydownHandler = function (evt) {
-    if (evt.keyCode === KeyCodes.ESC) {
-      closeCard();
-    }
-  };
-
   adsData = getDataArray(ADS_COUNT);
   mainPin.addEventListener('mouseup', mainPinMouseupHandler);
 
   window.map = {
     element: map,
     deactivate: deactivate,
-    pins: pins,
-    closeCard: closeCard,
-    currentCard: currentCard,
-    escKeydownHandler: escKeydownHandler
+    pins: pins
   };
 })();

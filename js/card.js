@@ -1,6 +1,15 @@
 'use strict';
 
 (function () {
+  /**
+   * @enum {number}
+   */
+  var KeyCodes = {
+    ENTER: 13,
+    ESC: 27
+  };
+
+  var currentCard;
   var housingTypes = {
     flat: 'Квартира',
     house: 'Дом',
@@ -19,37 +28,52 @@
 
   /**
    * Создает карточку объявления
-   * @param  {AdData} cardData
-   * @return {Node}
+   * @param  {AdData} adData
    */
-  var create = function (cardData) {
+  var open = function (adData) {
+    if (currentCard) {
+      close();
+    }
     var card = document.querySelector('template').content.querySelector('.popup').cloneNode(true);
     var closeButton = card.querySelector('.popup__close');
     var featuresContainer = card.querySelector('.popup__features');
     var picturesContainer = card.querySelector('.popup__pictures');
 
-    card.querySelector('h3').textContent = cardData.offer.title;
-    card.querySelector('small').textContent = cardData.offer.address;
-    card.querySelector('.popup__price').innerHTML = cardData.offer.price + ' &#x20bd;/ночь';
-    card.querySelector('h4').textContent = housingTypes[cardData.offer.type];
-    card.querySelector('.popup__size').textContent = window.util.declensionOfNoun(cardData.offer.rooms, roomForms) + ' для ' + window.util.declensionOfNoun(cardData.offer.guests, guestForms);
-    card.querySelector('.popup__time').textContent = 'Заезд после ' + cardData.offer.checkin + ' , выезд до ' + cardData.offer.checkout;
-    card.querySelector('.popup__description').textContent = cardData.offer.description;
-    card.querySelector('.popup__avatar').src = cardData.author.avatar;
+    card.querySelector('h3').textContent = adData.offer.title;
+    card.querySelector('small').textContent = adData.offer.address;
+    card.querySelector('.popup__price').innerHTML = adData.offer.price + ' &#x20bd;/ночь';
+    card.querySelector('h4').textContent = housingTypes[adData.offer.type];
+    card.querySelector('.popup__size').textContent = window.util.declensionOfNoun(adData.offer.rooms, roomForms) + ' для ' + window.util.declensionOfNoun(adData.offer.guests, guestForms);
+    card.querySelector('.popup__time').textContent = 'Заезд после ' + adData.offer.checkin + ' , выезд до ' + adData.offer.checkout;
+    card.querySelector('.popup__description').textContent = adData.offer.description;
+    card.querySelector('.popup__avatar').src = adData.author.avatar;
 
-    cardData.offer.features.forEach(function (feature) {
+    adData.offer.features.forEach(function (feature) {
       featuresContainer.appendChild(createFeature(feature));
     });
 
-    cardData.offer.photos.forEach(function (photo) {
+    adData.offer.photos.forEach(function (photo) {
       picturesContainer.appendChild(createPicture(photo));
     });
 
     closeButton.addEventListener('click', function () {
-      window.map.closeCard();
+      close();
     });
 
-    return card;
+    currentCard = card;
+    window.map.element.appendChild(currentCard);
+    document.addEventListener('keydown', escKeydownHandler);
+  };
+
+  /**
+   * Закрывает текущую карточку объявления
+   */
+  var close = function () {
+    if (currentCard) {
+      window.map.element.removeChild(currentCard);
+      currentCard = null;
+      document.removeEventListener('keydown', escKeydownHandler);
+    }
   };
 
   /**
@@ -78,8 +102,19 @@
     return li;
   };
 
+  /**
+   * Обработчик нажатия на Escape
+   * @param {Object} evt
+   */
+  var escKeydownHandler = function (evt) {
+    if (evt.keyCode === KeyCodes.ESC) {
+      close();
+    }
+  };
+
   window.card = {
-    create: create
+    open: open,
+    close: close
   };
 
 })();

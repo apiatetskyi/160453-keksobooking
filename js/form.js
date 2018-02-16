@@ -123,16 +123,7 @@
   window.util.toggleFormFieldsState(fieldsets, true);
 
   window.form = {
-    element: form,
-    fieldsets: fieldsets,
-    inputs: inputs,
     address: address,
-    housingType: housingType,
-    pricePerNight: pricePerNight,
-    checkInTime: checkInTime,
-    checkOutTime: checkOutTime,
-    roomNumber: roomNumber,
-    housingCapacity: housingCapacity,
     activate: activate,
     deactivate: deactivate
   };
