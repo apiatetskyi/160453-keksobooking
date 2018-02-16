@@ -78,8 +78,8 @@
    * @return {AdData}
    */
   var generateAdData = function (index) {
-    var locationX = window.util.getRandomNumber(LocationProps.MIN_X, LocationProps.MAX_X);
-    var locationY = window.util.getRandomNumber(LocationProps.MIN_Y, LocationProps.MAX_Y);
+    var locationX = window.utils.getRandomNumber(LocationProps.MIN_X, LocationProps.MAX_X);
+    var locationY = window.utils.getRandomNumber(LocationProps.MIN_Y, LocationProps.MAX_Y);
 
     return {
       author: {
@@ -89,13 +89,13 @@
       offer: {
         title: adParams.TITLES[index],
         address: locationX + ', ' + locationY,
-        price: window.util.getRandomNumber(PriceParams.MIN, PriceParams.MAX),
-        type: adParams.TYPES[window.util.getRandomNumber(0, adParams.TYPES.length - 1)],
-        rooms: window.util.getRandomNumber(RoomsParams.MIN, RoomsParams.MAX),
-        guests: window.util.getRandomNumber(1, RoomsParams.MAX * 2),
-        checkin: adParams.TIMES[window.util.getRandomNumber(0, adParams.TIMES.length - 1)],
-        checkout: adParams.TIMES[window.util.getRandomNumber(0, adParams.TIMES.length - 1)],
-        features: adParams.FEATURES.slice(0, window.util.getRandomNumber(1, adParams.FEATURES.length - 1)),
+        price: window.utils.getRandomNumber(PriceParams.MIN, PriceParams.MAX),
+        type: adParams.TYPES[window.utils.getRandomNumber(0, adParams.TYPES.length - 1)],
+        rooms: window.utils.getRandomNumber(RoomsParams.MIN, RoomsParams.MAX),
+        guests: window.utils.getRandomNumber(1, RoomsParams.MAX * 2),
+        checkin: adParams.TIMES[window.utils.getRandomNumber(0, adParams.TIMES.length - 1)],
+        checkout: adParams.TIMES[window.utils.getRandomNumber(0, adParams.TIMES.length - 1)],
+        features: adParams.FEATURES.slice(0, window.utils.getRandomNumber(1, adParams.FEATURES.length - 1)),
         description: '',
         photos: adParams.PHOTOS
       },
@@ -107,5 +107,5 @@
     };
   };
 
-  window.data = generateAdData;
+  window.getData = generateAdData;
 })();

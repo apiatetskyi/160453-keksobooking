@@ -43,7 +43,7 @@
     card.querySelector('small').textContent = adData.offer.address;
     card.querySelector('.popup__price').innerHTML = adData.offer.price + ' &#x20bd;/ночь';
     card.querySelector('h4').textContent = housingTypes[adData.offer.type];
-    card.querySelector('.popup__size').textContent = window.util.declensionOfNoun(adData.offer.rooms, roomForms) + ' для ' + window.util.declensionOfNoun(adData.offer.guests, guestForms);
+    card.querySelector('.popup__size').textContent = window.utils.declensionOfNoun(adData.offer.rooms, roomForms) + ' для ' + window.utils.declensionOfNoun(adData.offer.guests, guestForms);
     card.querySelector('.popup__time').textContent = 'Заезд после ' + adData.offer.checkin + ' , выезд до ' + adData.offer.checkout;
     card.querySelector('.popup__description').textContent = adData.offer.description;
     card.querySelector('.popup__avatar').src = adData.author.avatar;

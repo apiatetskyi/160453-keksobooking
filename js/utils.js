@@ -71,7 +71,7 @@
     input[attribute] = dictionary[select.value];
   };
 
-  window.util = {
+  window.utils = {
     getRandomNumber: getRandomNumber,
     declensionOfNoun: declensionOfNoun,
     syncSelects: syncSelects,

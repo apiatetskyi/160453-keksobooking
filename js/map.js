@@ -20,7 +20,7 @@
    * Деактивирует страницу
    */
   var deactivate = function () {
-    window.card();
+    window.card.close();
     pins.forEach(function (pin) {
       pinsContainer.removeChild(pin);
     });
@@ -38,7 +38,7 @@
     var result = [];
 
     for (var i = 0; i < adsNumber; i++) {
-      result.push(window.data(i));
+      result.push(window.getData(i));
     }
 
     return result;
@@ -53,7 +53,7 @@
     var fragment = document.createDocumentFragment();
 
     ads.forEach(function (ad) {
-      var pin = window.pin(ad);
+      var pin = window.createPin(ad);
       pins.push(pin);
       fragment.appendChild(pin);
     });
@@ -62,22 +62,13 @@
   };
 
   /**
-   * Устанавливает координаты главного пина в поля формы «Адрес»
-   * @param {number} x
-   * @param {number} y
+   * Обработчик mouseup на главном пине
    */
-  var setLocation = function (x, y) {
-    window.form.address.value = x + ', ' + y;
-  };
-
-  /**
- * Обработчик mouseup на главном пине
- */
   var mainPinMouseupHandler = function () {
     activate();
     window.form.activate();
     renderPins(adsData, pinsContainer);
-    setLocation(mainPin.offsetLeft, mainPin.offsetTop);
+    window.form.setLocation(mainPin.offsetLeft, mainPin.offsetTop);
   };
 
   adsData = getDataArray(ADS_COUNT);
@@ -85,7 +76,6 @@
 
   window.map = {
     element: map,
-    deactivate: deactivate,
-    pins: pins
+    deactivate: deactivate
   };
 })();

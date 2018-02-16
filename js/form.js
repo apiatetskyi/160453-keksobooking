@@ -29,7 +29,7 @@
 
   var activate = function () {
     form.classList.remove('notice__form--disabled');
-    window.util.toggleFormFieldsState(fieldsets, false);
+    window.utils.toggleFormFieldsState(fieldsets, false);
     housingType.addEventListener('change', housingTypeChangeHandler);
     checkInTime.addEventListener('change', checkInTimeChangeHandler);
     checkOutTime.addEventListener('change', checkOutTimeChangeHandler);
@@ -39,15 +39,15 @@
       input.addEventListener('keyup', inputKeyupHandler);
     });
     form.addEventListener('invalid', formInvalidHandler, true);
-    window.util.syncInputToSelect(housingType, pricePerNight, typePrices, 'min');
-    window.util.syncSelects(roomNumber, housingCapacity, function () {
+    window.utils.syncInputToSelect(housingType, pricePerNight, typePrices, 'min');
+    window.utils.syncSelects(roomNumber, housingCapacity, function () {
       housingCapacity.value = roomNumberDependency[roomNumber.value][0];
     });
   };
 
-  var deactivate = function () {
+  var deactivateForm = function () {
     form.classList.add('notice__form--disabled');
-    window.util.toggleFormFieldsState(fieldsets, true);
+    window.utils.toggleFormFieldsState(fieldsets, true);
     housingType.removeEventListener('change', housingTypeChangeHandler);
     checkInTime.removeEventListener('change', checkInTimeChangeHandler);
     checkOutTime.removeEventListener('change', checkOutTimeChangeHandler);
@@ -58,6 +58,15 @@
       input.removeEventListener('keyup', inputKeyupHandler);
     });
     form.removeEventListener('invalid', formInvalidHandler, true);
+  };
+
+  /**
+   * Устанавливает координаты главного пина в поля формы «Адрес»
+   * @param {number} x
+   * @param {number} y
+   */
+  var setLocation = function (x, y) {
+    address.value = x + ', ' + y;
   };
 
   /**
@@ -72,7 +81,7 @@
    * Обработчик изменения значения количества комнат
    */
   var roomNumberChangeHandler = function () {
-    window.util.syncSelects(roomNumber, housingCapacity, function () {
+    window.utils.syncSelects(roomNumber, housingCapacity, function () {
       housingCapacity.value = roomNumberDependency[roomNumber.value][0];
     });
 
@@ -85,21 +94,21 @@
    * Обработчик изменения типа жилья
    */
   var housingTypeChangeHandler = function () {
-    window.util.syncInputToSelect(housingType, pricePerNight, typePrices, 'min');
+    window.utils.syncInputToSelect(housingType, pricePerNight, typePrices, 'min');
   };
 
   /**
    * Обработчик изменения времени заезда
    */
   var checkInTimeChangeHandler = function () {
-    window.util.syncSelects(checkInTime, checkOutTime);
+    window.utils.syncSelects(checkInTime, checkOutTime);
   };
 
   /**
    * Обработчик изменения времени выезда
    */
   var checkOutTimeChangeHandler = function () {
-    window.util.syncSelects(checkOutTime, checkInTime);
+    window.utils.syncSelects(checkOutTime, checkInTime);
   };
 
   /**
@@ -117,14 +126,14 @@
    */
   var resetButtonClickHandler = function () {
     window.map.deactivate();
-    deactivate();
+    deactivateForm();
   };
 
-  window.util.toggleFormFieldsState(fieldsets, true);
+  window.utils.toggleFormFieldsState(fieldsets, true);
 
   window.form = {
-    address: address,
     activate: activate,
-    deactivate: deactivate
+    deactivate: deactivateForm,
+    setLocation: setLocation
   };
 })();
