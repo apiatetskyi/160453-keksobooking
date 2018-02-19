@@ -10,13 +10,13 @@
    * @enum {number}
   */
   var PinSize = {
-    WIDTH: 65,
-    HEIGHT: 65,
-    POINTER_HEIGHT: 22
+    WIDTH: 62,
+    HEIGHT: 62,
+    POINTER_HEIGHT: 18
   };
 
   var adsData;
-  var activated = false;
+  var pageActivated = false;
   var pins = [];
   var map = document.querySelector('.map');
   var mainPin = map.querySelector('.map__pin--main');
@@ -39,8 +39,8 @@
     });
     pins = [];
     map.classList.add('map--faded');
-    mainPin.style = false;
-    activated = false;
+    mainPin.style = '';
+    pageActivated = false;
     window.form.deactivate();
     window.form.setLocation(mainPin.offsetLeft, mainPin.offsetTop);
   };
@@ -89,6 +89,7 @@
 
     var addressY = mainPin.offsetTop;
     var addressX = mainPin.offsetLeft;
+    var correction = PinSize.HEIGHT / 2 + PinSize.POINTER_HEIGHT;
 
     /**
      * Обработчик перетаскивания пина по карте
@@ -105,49 +106,41 @@
         y: moveEvt.clientY
       };
 
-      if (!activated) {
+      if (!pageActivated) {
         activate();
         window.form.activate();
         renderPins(adsData, pinsContainer);
-        activated = true;
+        pageActivated = true;
       }
 
-      addressY = mainPin.offsetTop - shift.y + PinSize.HEIGHT / 2 + PinSize.POINTER_HEIGHT;
-      if (addressY > MAX_Y) {
-        mainPin.style.top = mainPin.offsetTop + 'px';
-        addressY = MAX_Y;
-      } else if (addressY < MIN_Y) {
-        mainPin.style.top = mainPin.offsetTop + 'px';
-        addressY = MIN_Y;
-      } else {
-        mainPin.style.top = mainPin.offsetTop - shift.y + 'px';
-      }
-
+      addressY = mainPin.offsetTop - shift.y;
       addressX = mainPin.offsetLeft - shift.x;
-      if (addressX > pinsContainer.offsetWidth) {
-        mainPin.style.left = pinsContainer.offsetWidth + 'px';
-        addressX = pinsContainer.offsetWidth;
-      } else if (addressX < 0) {
-        mainPin.style.left = '0';
-        addressX = 0;
-      } else {
-        mainPin.style.left = mainPin.offsetLeft - shift.x + 'px';
+
+      if (addressY + correction > MAX_Y || addressY + correction < MIN_Y) {
+        addressY = mainPin.offsetTop;
       }
 
-      window.form.setLocation(addressX, addressY);
+      if (addressX > pinsContainer.offsetWidth || addressX < 0) {
+        addressX = mainPin.offsetLeft;
+      }
+
+      mainPin.style.top = addressY + 'px';
+      mainPin.style.left = addressX + 'px';
+
+      window.form.setLocation(addressX, addressY + correction);
     };
 
     /**
      * Обработчик mouseup — завершение перетаскивания пина
      */
     var mouseupHandler = function () {
-      if (!activated) {
+      if (!pageActivated) {
         activate();
         window.form.activate();
         renderPins(adsData, pinsContainer);
-        activated = true;
+        pageActivated = true;
       }
-      window.form.setLocation(addressX, addressY);
+      window.form.setLocation(addressX, addressY + correction);
       document.removeEventListener('mousemove', mousemoveHandler);
       document.removeEventListener('mouseup', mouseupHandler);
     };
