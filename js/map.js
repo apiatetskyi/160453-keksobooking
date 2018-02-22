@@ -1,7 +1,6 @@
 'use strict';
 
 (function () {
-  var ADS_COUNT = 8;
   var MIN_Y = 150;
   var MAX_Y = 500;
 
@@ -46,35 +45,22 @@
   };
 
   /**
-   * Генерирует массив данных для объявлений
-   * @param  {number} adsNumber
-   * @return {Array}
-   */
-  var getDataArray = function (adsNumber) {
-    var result = [];
-
-    for (var i = 0; i < adsNumber; i++) {
-      result.push(window.getData(i));
-    }
-
-    return result;
-  };
-
-  /**
    * Рендерит пины для всех объявлений в заданом родительском элементе
    * @param {Array} ads
    * @param {Node} parentElement
    */
   var renderPins = function (ads, parentElement) {
-    var fragment = document.createDocumentFragment();
+    if (ads) {
+      var fragment = document.createDocumentFragment();
 
-    ads.forEach(function (ad) {
-      var pin = window.createPin(ad);
-      pins.push(pin);
-      fragment.appendChild(pin);
-    });
+      ads.forEach(function (ad) {
+        var pin = window.createPin(ad);
+        pins.push(pin);
+        fragment.appendChild(pin);
+      });
 
-    parentElement.appendChild(fragment);
+      parentElement.appendChild(fragment);
+    }
   };
 
   /**
@@ -149,8 +135,24 @@
     document.addEventListener('mouseup', mouseupHandler);
   };
 
-  adsData = getDataArray(ADS_COUNT);
-  mainPin.addEventListener('mousedown', mainPinMousedownHandler);
+  /**
+   * Обработчик успешного ответа от сервера
+   * @param {Object} response
+   */
+  var dataSuccessHandler = function (response) {
+    adsData = response;
+    mainPin.addEventListener('mousedown', mainPinMousedownHandler);
+  };
+
+  /**
+   * Обработчик ошибки ответа от сервера
+   * @param {string} message
+   */
+  var dataErrorHandler = function (message) {
+    window.showAlert(message, 'error');
+  };
+
+  window.backend.download('https://js.dump.academy/keksobooking/data', dataSuccessHandler, dataErrorHandler);
   window.form.setLocation(mainPin.offsetLeft, mainPin.offsetTop);
 
   window.map = {

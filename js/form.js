@@ -47,6 +47,7 @@
 
   var deactivateForm = function () {
     form.classList.add('notice__form--disabled');
+    form.reset();
     window.utils.toggleFormFieldsState(fieldsets, true);
     housingType.removeEventListener('change', housingTypeChangeHandler);
     checkInTime.removeEventListener('change', checkInTimeChangeHandler);
@@ -125,10 +126,40 @@
    * Обработчик клика по кнопке сброса формы
    */
   var resetButtonClickHandler = function () {
-    window.map.deactivate();
     deactivateForm();
+    window.map.deactivate();
   };
 
+  /**
+   * Обработчик успешного ответа от сервера
+   */
+  var submitSuccessHandler = function () {
+    window.showAlert('Данные успешно отправлены!', 'success');
+    form.reset();
+  };
+
+  /**
+   * Обработчик ошибки ответа от сервера
+   * @param {string} message
+   */
+  var submitErrorHandler = function (message) {
+    if (message) {
+      window.showAlert(message, 'error');
+    } else {
+      window.showAlert('Ошибка сервера. Попробуйте отправить ваше объявление через некоторое время.', 'error');
+    }
+  };
+
+  /**
+   * Обработчик отправки формы
+   * @param {Object} evt
+   */
+  var submitHandler = function (evt) {
+    window.backend.upload('https://js.dump.academy/keksobooking', new FormData(form), submitSuccessHandler, submitErrorHandler);
+    evt.preventDefault();
+  };
+
+  form.addEventListener('submit', submitHandler);
   window.utils.toggleFormFieldsState(fieldsets, true);
 
   window.form = {
