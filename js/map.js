@@ -152,7 +152,7 @@
     window.showAlert(message, 'error');
   };
 
-  window.backend.download('https://js.dump.academy/keksobooking/data', dataSuccessHandler, dataErrorHandler);
+  window.backend.download(dataSuccessHandler, dataErrorHandler);
   window.form.setLocation(mainPin.offsetLeft, mainPin.offsetTop);
 
   window.map = {

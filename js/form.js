@@ -158,7 +158,7 @@
     if (message) {
       window.showAlert(message, 'error');
     } else {
-      window.showAlert('Ошибка сервера. Попробуйте отправить ваше объявление через некоторое время.', 'error');
+      window.showAlert('Ошибка сервера. Попробуйте отправить данные позже.', 'error');
     }
   };
 
@@ -167,7 +167,7 @@
    * @param {Object} evt
    */
   var submitHandler = function (evt) {
-    window.backend.upload('https://js.dump.academy/keksobooking', new FormData(form), submitSuccessHandler, submitErrorHandler);
+    window.backend.upload(new FormData(form), submitSuccessHandler, submitErrorHandler);
     evt.preventDefault();
   };
 
