@@ -16,12 +16,13 @@
   };
 
   /**
-   * Настраивает текущий объект запроса
-   * @param {Object} xhr
+   * Создает объект запроса
    * @param {requestSuccess} successHandler
    * @param {requestError} errorHandler
+   * @return {Object}
    */
-  var initRequest = function (xhr, successHandler, errorHandler) {
+  var initRequest = function (successHandler, errorHandler) {
+    var xhr = new XMLHttpRequest();
     xhr.timeout = 10000;
     xhr.responseType = 'json';
 
@@ -40,6 +41,8 @@
     xhr.addEventListener('timeout', function () {
       errorHandler('Запрос не успел выполниться за ' + ' ' + window.utils.declensionOfNoun(Math.ceil(xhr.timeout / 1000), secondsForms) + '.');
     });
+
+    return xhr;
   };
 
   /**
@@ -63,8 +66,7 @@
    * @param {requestError} errorHandler
    */
   var upload = function (data, successHandler, errorHandler) {
-    var xhr = new XMLHttpRequest();
-    initRequest(xhr, successHandler, errorHandler);
+    var xhr = initRequest(successHandler, errorHandler);
     xhr.open('POST', DefaultUrls.SEND_FORM);
     xhr.send(data);
   };
@@ -75,8 +77,7 @@
    * @param {onError} errorHandler
    */
   var download = function (successHandler, errorHandler) {
-    var xhr = new XMLHttpRequest();
-    initRequest(xhr, successHandler, errorHandler);
+    var xhr = initRequest(successHandler, errorHandler);
     xhr.open('GET', DefaultUrls.GET_DATA);
     xhr.send();
   };
