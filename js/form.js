@@ -47,6 +47,7 @@
 
   var deactivateForm = function () {
     form.classList.add('notice__form--disabled');
+    clearInputs(inputs);
     window.utils.toggleFormFieldsState(fieldsets, true);
     housingType.removeEventListener('change', housingTypeChangeHandler);
     checkInTime.removeEventListener('change', checkInTimeChangeHandler);
@@ -67,6 +68,18 @@
    */
   var setLocation = function (x, y) {
     address.value = x + ', ' + y;
+  };
+
+  /**
+   * Очищает все поля кроме адреса
+   * @param {Array} inputArray
+   */
+  var clearInputs = function (inputArray) {
+    inputArray.forEach(function (input) {
+      if (input !== address) {
+        input.value = '';
+      }
+    });
   };
 
   /**
@@ -125,10 +138,40 @@
    * Обработчик клика по кнопке сброса формы
    */
   var resetButtonClickHandler = function () {
-    window.map.deactivate();
     deactivateForm();
+    window.map.deactivate();
   };
 
+  /**
+   * Обработчик успешного ответа от сервера
+   */
+  var submitSuccessHandler = function () {
+    window.showAlert('Данные успешно отправлены!', 'success');
+    clearInputs(inputs);
+  };
+
+  /**
+   * Обработчик ошибки ответа от сервера
+   * @param {string} message
+   */
+  var submitErrorHandler = function (message) {
+    if (message) {
+      window.showAlert(message, 'error');
+    } else {
+      window.showAlert('Ошибка сервера. Попробуйте отправить данные позже.', 'error');
+    }
+  };
+
+  /**
+   * Обработчик отправки формы
+   * @param {Object} evt
+   */
+  var submitHandler = function (evt) {
+    window.backend.upload(new FormData(form), submitSuccessHandler, submitErrorHandler);
+    evt.preventDefault();
+  };
+
+  form.addEventListener('submit', submitHandler);
   window.utils.toggleFormFieldsState(fieldsets, true);
 
   window.form = {
