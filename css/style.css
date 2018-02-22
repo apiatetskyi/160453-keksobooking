@@ -876,6 +876,50 @@ textarea:focus
 
 .invalid
 {
-  background-color: #fdf4f2 !important;
-  box-shadow: inset 0 0 0 2px #ff7b7b;
+    background-color: #fdf4f2 !important;
+    box-shadow: inset 0 0 0 2px #ff7b7b;
+}
+
+.alert-box
+{
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    padding: 20px;
+    font-size: 18px;
+    border: 1px solid transparent;
+    transform: translate(-50%, 0);
+    background-color: #fff;
+    animation: alert 4s linear;
+    box-shadow: 0 2px 5px 2px rgba(0, 0, 0, .2);
+    opacity: 0;
+    border-radius: 4px;
+    z-index: 100;
+}
+
+.alert-box--success
+{
+    border-color: #329345;
+    background-color: #caffca;
+    color: #329345;
+}
+
+.alert-box--error
+{
+    border-color: #d0472b;
+    background-color: #fdf4f2;
+    color: #d0472b;
+}
+
+@keyframes alert {
+  10%, 90% {
+    transform: translate(-50%, 20px);
+    opacity: 1;
+  }
+
+  0%, 100% {
+    top: 0;
+    opacity: 0;
+    transform: translate(-50%, 0);
+  }
 }
