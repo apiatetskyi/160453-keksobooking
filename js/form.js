@@ -47,7 +47,7 @@
 
   var deactivateForm = function () {
     form.classList.add('notice__form--disabled');
-    form.reset();
+    clearInputs(inputs);
     window.utils.toggleFormFieldsState(fieldsets, true);
     housingType.removeEventListener('change', housingTypeChangeHandler);
     checkInTime.removeEventListener('change', checkInTimeChangeHandler);
@@ -68,6 +68,18 @@
    */
   var setLocation = function (x, y) {
     address.value = x + ', ' + y;
+  };
+
+  /**
+   * Очищает все поля кроме адреса
+   * @param {Array} inputArray
+   */
+  var clearInputs = function (inputArray) {
+    inputArray.forEach(function (input) {
+      if (input !== address) {
+        input.value = '';
+      }
+    });
   };
 
   /**
@@ -135,7 +147,7 @@
    */
   var submitSuccessHandler = function () {
     window.showAlert('Данные успешно отправлены!', 'success');
-    form.reset();
+    clearInputs(inputs);
   };
 
   /**
