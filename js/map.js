@@ -45,25 +45,6 @@
   };
 
   /**
-   * Рендерит пины для всех объявлений в заданом родительском элементе
-   * @param {Array} ads
-   * @param {Node} parentElement
-   */
-  var renderPins = function (ads, parentElement) {
-    if (ads) {
-      var fragment = document.createDocumentFragment();
-
-      ads.forEach(function (ad) {
-        var pin = window.createPin(ad);
-        pins.push(pin);
-        fragment.appendChild(pin);
-      });
-
-      parentElement.appendChild(fragment);
-    }
-  };
-
-  /**
    * Обработчик mousedown на главном пине
    * @param {Object} evt
    */
@@ -95,7 +76,7 @@
       if (!pageActivated) {
         activate();
         window.form.activate();
-        renderPins(adsData, pinsContainer);
+        window.render.draw(adsData, pinsContainer, pins, window.createPin);
         pageActivated = true;
       }
 
@@ -123,7 +104,7 @@
       if (!pageActivated) {
         activate();
         window.form.activate();
-        renderPins(adsData, pinsContainer);
+        window.render.draw(adsData, pinsContainer, pins, window.createPin);
         pageActivated = true;
       }
       window.form.setLocation(addressX, addressY + correction);
