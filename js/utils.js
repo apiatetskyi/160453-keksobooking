@@ -2,6 +2,8 @@
 
 (function () {
 
+  var DEBOUNCE_INTERVAL = 500;
+  var timeoutId;
 
   /**
    * Возвращает случайное число в указанном диапазоне
@@ -71,11 +73,19 @@
     input[attribute] = dictionary[select.value];
   };
 
+  function debounce(callback) {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+    timeoutId = window.setTimeout(callback, DEBOUNCE_INTERVAL);
+  }
+
   window.utils = {
     getRandomNumber: getRandomNumber,
     declensionOfNoun: declensionOfNoun,
     syncSelects: syncSelects,
     syncInputToSelect: syncInputToSelect,
-    toggleFormFieldsState: toggleFormFieldsState
+    toggleFormFieldsState: toggleFormFieldsState,
+    debounce: debounce
   };
 })();

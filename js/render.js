@@ -1,19 +1,24 @@
 'use strict';
 
 (function () {
-  var draw = function (data, parentElement, renderedElements, callback) {
+  var render = function (data, parentElement, callback) {
     var fragment = document.createDocumentFragment();
 
+    if (window.map.pins) {
+      window.map.pins.forEach(function (element) {
+        parentElement.removeChild(element);
+      });
+      window.map.pins = [];
+    }
+
     data.forEach(function (item) {
-      var elem = callback(item);
-      renderedElements.push(elem);
-      fragment.appendChild(elem);
+      var element = callback(item);
+      window.map.pins.push(element);
+      fragment.appendChild(element);
     });
 
     parentElement.appendChild(fragment);
   };
 
-  window.render = {
-    draw: draw
-  };
+  window.render = render;
 })();
