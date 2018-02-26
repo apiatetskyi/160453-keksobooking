@@ -16,7 +16,6 @@
 
   var adsData;
   var pageActivated = false;
-  var pins = [];
   var map = document.querySelector('.map');
   var mainPin = map.querySelector('.map__pin--main');
   var pinsContainer = map.querySelector('.map__pins');
@@ -33,10 +32,7 @@
    */
   var deactivate = function () {
     window.card.close();
-    pins.forEach(function (pin) {
-      pinsContainer.removeChild(pin);
-    });
-    pins = [];
+    window.render.remove(pinsContainer);
     map.classList.add('map--faded');
     mainPin.style = '';
     pageActivated = false;
@@ -76,7 +72,7 @@
       if (!pageActivated) {
         activate();
         window.form.activate();
-        window.render(adsData.slice(0, 5), pinsContainer, window.createPin);
+        window.render.draw(adsData.slice(0, 5), pinsContainer, window.createPin);
         pageActivated = true;
       }
 
@@ -104,7 +100,7 @@
       if (!pageActivated) {
         activate();
         window.form.activate();
-        window.render(adsData.slice(0, 5), pinsContainer, window.createPin);
+        window.render.draw(adsData.slice(0, 5), pinsContainer, window.createPin);
         pageActivated = true;
       }
       window.form.setLocation(addressX, addressY + correction);
@@ -143,7 +139,7 @@
         window.showAlert('Не найдено похожих объявлений. Измените настройки фильтра.', 'error');
       }
       window.card.close();
-      window.render(filteredData, pinsContainer, window.createPin);
+      window.render.draw(filteredData, pinsContainer, window.createPin);
     });
   };
 
@@ -154,7 +150,6 @@
 
   window.map = {
     element: map,
-    deactivate: deactivate,
-    pins: pins
+    deactivate: deactivate
   };
 })();
