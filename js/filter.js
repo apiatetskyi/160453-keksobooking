@@ -38,7 +38,13 @@
     var filteredData = data.slice();
 
     selects.forEach(function (select) {
-      compareTemplate[select.id.replace('housing-', '')] = select.value;
+      var keyName = select.id.replace('housing-', '');
+
+      if ((keyName === 'rooms' || keyName === 'guests') && select.value !== 'any') {
+        compareTemplate[keyName] = parseInt(select.value, 10);
+      } else {
+        compareTemplate[keyName] = select.value;
+      }
     });
 
     checkboxes.forEach(function (checkbox) {
@@ -56,9 +62,8 @@
 
       for (var key in compareTemplate) {
         if (compareTemplate.hasOwnProperty(key) && compareTemplate[key] !== 'any') {
-          if (key === 'price' && !priceCompare) {
-            return false;
-          } else if (key === 'features' && !featureCompare) {
+
+          if (key === 'price' && !priceCompare || key === 'features' && !featureCompare) {
             return false;
           } else if (ad.offer[key] !== compareTemplate[key] && key !== 'features' && key !== 'price') {
             return false;
