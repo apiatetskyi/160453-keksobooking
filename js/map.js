@@ -16,7 +16,6 @@
 
   var adsData;
   var pageActivated = false;
-  var pins = [];
   var map = document.querySelector('.map');
   var mainPin = map.querySelector('.map__pin--main');
   var pinsContainer = map.querySelector('.map__pins');
@@ -33,34 +32,13 @@
    */
   var deactivate = function () {
     window.card.close();
-    pins.forEach(function (pin) {
-      pinsContainer.removeChild(pin);
-    });
-    pins = [];
+    window.pins.remove(pinsContainer);
     map.classList.add('map--faded');
     mainPin.style = '';
     pageActivated = false;
     window.form.deactivate();
     window.form.setLocation(mainPin.offsetLeft, mainPin.offsetTop);
-  };
-
-  /**
-   * Рендерит пины для всех объявлений в заданом родительском элементе
-   * @param {Array} ads
-   * @param {Node} parentElement
-   */
-  var renderPins = function (ads, parentElement) {
-    if (ads) {
-      var fragment = document.createDocumentFragment();
-
-      ads.forEach(function (ad) {
-        var pin = window.createPin(ad);
-        pins.push(pin);
-        fragment.appendChild(pin);
-      });
-
-      parentElement.appendChild(fragment);
-    }
+    window.filter.element.removeEventListener('change', filterChangeHandler);
   };
 
   /**
@@ -95,7 +73,7 @@
       if (!pageActivated) {
         activate();
         window.form.activate();
-        renderPins(adsData, pinsContainer);
+        window.pins.add(adsData, pinsContainer);
         pageActivated = true;
       }
 
@@ -123,7 +101,7 @@
       if (!pageActivated) {
         activate();
         window.form.activate();
-        renderPins(adsData, pinsContainer);
+        window.pins.add(adsData, pinsContainer);
         pageActivated = true;
       }
       window.form.setLocation(addressX, addressY + correction);
@@ -133,6 +111,7 @@
 
     document.addEventListener('mousemove', mousemoveHandler);
     document.addEventListener('mouseup', mouseupHandler);
+    window.filter.element.addEventListener('change', filterChangeHandler);
   };
 
   /**
@@ -150,6 +129,20 @@
    */
   var dataErrorHandler = function (message) {
     window.showAlert(message, 'error');
+  };
+
+  /**
+   * Обработчик изменения фильтра
+   */
+  var filterChangeHandler = function () {
+    window.utils.debounce(function () {
+      var filteredData = window.filter.apply(adsData);
+      if (!filteredData.length) {
+        window.showAlert('Не найдено похожих объявлений. Измените настройки фильтра.', 'error');
+      }
+      window.card.close();
+      window.pins.add(filteredData, pinsContainer);
+    });
   };
 
   window.backend.download(dataSuccessHandler, dataErrorHandler);
