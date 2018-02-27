@@ -38,6 +38,7 @@
     pageActivated = false;
     window.form.deactivate();
     window.form.setLocation(mainPin.offsetLeft, mainPin.offsetTop);
+    window.filter.element.removeEventListener('change', filterChangeHandler);
   };
 
   /**
@@ -110,6 +111,7 @@
 
     document.addEventListener('mousemove', mousemoveHandler);
     document.addEventListener('mouseup', mouseupHandler);
+    window.filter.element.addEventListener('change', filterChangeHandler);
   };
 
   /**
@@ -143,8 +145,6 @@
     });
   };
 
-
-  window.filter.element.addEventListener('change', filterChangeHandler);
   window.backend.download(dataSuccessHandler, dataErrorHandler);
   window.form.setLocation(mainPin.offsetLeft, mainPin.offsetTop);
 

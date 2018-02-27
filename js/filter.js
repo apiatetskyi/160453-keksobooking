@@ -22,6 +22,21 @@
     },
   };
 
+  var filters = {
+    'housing-type': function (ad) {
+      return filterByValue(ad, 'type', type.value);
+    },
+    'housing-price': function (ad) {
+      return rangeToPrice[price.value](ad.offer.price);
+    },
+    'housing-rooms': function (ad) {
+      return filterByValue(ad, 'rooms', rooms.value);
+    },
+    'housing-guests': function (ad) {
+      return filterByValue(ad, 'guests', guests.value);
+    },
+  };
+
   var filterForm = document.querySelector('.map__filters');
   var type = filterForm.querySelector('#housing-type');
   var price = filterForm.querySelector('#housing-price');
@@ -30,21 +45,22 @@
   var selects = Array.prototype.slice.call(filterForm.querySelectorAll('select'));
   var features = Array.prototype.slice.call(filterForm.querySelectorAll('input[type="checkbox"]:checked'));
 
-  var filters = {
-    'housing-type': function (ad) {
-      return ad.offer.type === type.value;
-    },
-    'housing-price': function (ad) {
-      return rangeToPrice[price.value](ad.offer.price);
-    },
-    'housing-rooms': function (ad) {
-      return ad.offer.rooms === parseInt(rooms.value, 10);
-    },
-    'housing-guests': function (ad) {
-      return ad.offer.guests === parseInt(guests.value, 10);
-    },
+  /**
+   * Фильтр данных по значению селекта
+   * @param {AdData} ad
+   * @param {string} dataValue
+   * @param {string} filterValue
+   * @return {boolean}
+   */
+  var filterByValue = function (ad, dataValue, filterValue) {
+    return ad.offer[dataValue].toString() === filterValue;
   };
 
+  /**
+   * Фильтр удобств
+   * @param {AdData} ad
+   * @return {boolean}
+   */
   var filterFeatures = function (ad) {
     return features.every(function (feature) {
       return ad.offer.features.indexOf(feature) !== -1;
@@ -59,9 +75,11 @@
   var apply = function (data) {
     var filteredData = data.slice();
 
-    selects.filter(function (select) {
+    var activeFilters = selects.filter(function (select) {
       return select.value !== 'any';
-    }).forEach(function (select) {
+    });
+
+    activeFilters.forEach(function (select) {
       filteredData = filteredData.filter(filters[select.id]);
     });
 
