@@ -27,25 +27,22 @@
   var price = filterForm.querySelector('#housing-price');
   var rooms = filterForm.querySelector('#housing-rooms');
   var guests = filterForm.querySelector('#housing-guests');
-  var checkboxes = filterForm.querySelectorAll('input[type="checkbox"]');
-  var features = Array.prototype.slice.call(checkboxes).filter(function (feature) {
-    return feature.checked;
-  });
+  var selects = Array.prototype.slice.call(filterForm.querySelectorAll('select'));
+  var features = Array.prototype.slice.call(filterForm.querySelectorAll('input[type="checkbox"]:checked'));
 
-  var filterType = function (ad) {
-    return type.value === 'any' || ad.offer.type === type.value;
-  };
-
-  var filterPrice = function (ad) {
-    return price.value === 'any' || rangeToPrice[price.value](ad.offer.price);
-  };
-
-  var filterRooms = function (ad) {
-    return rooms.value === 'any' || ad.offer.rooms === parseInt(rooms.value, 10);
-  };
-
-  var filterGuests = function (ad) {
-    return guests.value === 'any' || ad.offer.guests === parseInt(guests.value, 10);
+  var filters = {
+    'housing-type': function (ad) {
+      return ad.offer.type === type.value;
+    },
+    'housing-price': function (ad) {
+      return rangeToPrice[price.value](ad.offer.price);
+    },
+    'housing-rooms': function (ad) {
+      return ad.offer.rooms === parseInt(rooms.value, 10);
+    },
+    'housing-guests': function (ad) {
+      return ad.offer.guests === parseInt(guests.value, 10);
+    },
   };
 
   var filterFeatures = function (ad) {
@@ -60,12 +57,15 @@
    * @return {Array} Возвращает отфильтрованные данные
    */
   var apply = function (data) {
-    var filteredData = data.slice()
-        .filter(filterType)
-        .filter(filterPrice)
-        .filter(filterRooms)
-        .filter(filterGuests)
-        .filter(filterFeatures);
+    var filteredData = data.slice();
+
+    selects.filter(function (select) {
+      return select.value !== 'any';
+    }).forEach(function (select) {
+      filteredData = filteredData.filter(filters[select.id]);
+    });
+
+    filteredData = filteredData.filter(filterFeatures);
 
     return filteredData;
   };
