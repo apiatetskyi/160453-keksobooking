@@ -35,19 +35,17 @@
     checkOutTime.addEventListener('change', checkOutTimeChangeHandler);
     roomNumber.addEventListener('change', roomNumberChangeHandler);
     resetButton.addEventListener('click', resetButtonClickHandler);
-    inputs.forEach(function (input) {
-      input.addEventListener('keyup', inputKeyupHandler);
-    });
     form.addEventListener('invalid', formInvalidHandler, true);
     window.utils.syncInputToSelect(housingType, pricePerNight, typePrices, 'min');
     window.utils.syncSelects(roomNumber, housingCapacity, function () {
       housingCapacity.value = roomNumberDependency[roomNumber.value][0];
     });
+    checkHousingCapacity();
   };
 
   var deactivateForm = function () {
     form.classList.add('notice__form--disabled');
-    clearInputs(inputs);
+    form.reset();
     window.utils.toggleFormFieldsState(fieldsets, true);
     housingType.removeEventListener('change', housingTypeChangeHandler);
     checkInTime.removeEventListener('change', checkInTimeChangeHandler);
@@ -71,14 +69,11 @@
   };
 
   /**
-   * Очищает все поля кроме адреса
-   * @param {Array} inputArray
+   * Проверяет допустимые варианты для селекта с количеством мест
    */
-  var clearInputs = function (inputArray) {
-    inputArray.forEach(function (input) {
-      if (input !== address) {
-        input.value = '';
-      }
+  var checkHousingCapacity = function () {
+    Array.prototype.forEach.call(housingCapacity.options, function (option) {
+      option.disabled = !roomNumberDependency[roomNumber.value].includes(option.value);
     });
   };
 
@@ -88,6 +83,9 @@
    */
   var formInvalidHandler = function (evt) {
     evt.target.classList.add('invalid');
+    inputs.forEach(function (input) {
+      input.addEventListener('keyup', inputKeyupHandler);
+    });
   };
 
   /**
@@ -97,10 +95,7 @@
     window.utils.syncSelects(roomNumber, housingCapacity, function () {
       housingCapacity.value = roomNumberDependency[roomNumber.value][0];
     });
-
-    Array.prototype.forEach.call(housingCapacity.options, function (option) {
-      option.disabled = !roomNumberDependency[roomNumber.value].includes(option.value);
-    });
+    checkHousingCapacity();
   };
 
   /**
@@ -136,8 +131,10 @@
 
   /**
    * Обработчик клика по кнопке сброса формы
+   * @param {Object} evt
    */
-  var resetButtonClickHandler = function () {
+  var resetButtonClickHandler = function (evt) {
+    evt.preventDefault();
     deactivateForm();
     window.map.deactivate();
   };
@@ -147,7 +144,8 @@
    */
   var submitSuccessHandler = function () {
     window.showAlert('Данные успешно отправлены!', 'success');
-    clearInputs(inputs);
+    deactivateForm();
+    window.map.deactivate();
   };
 
   /**

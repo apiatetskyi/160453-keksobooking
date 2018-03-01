@@ -43,7 +43,7 @@
   var rooms = filterForm.querySelector('#housing-rooms');
   var guests = filterForm.querySelector('#housing-guests');
   var selects = Array.prototype.slice.call(filterForm.querySelectorAll('select'));
-  var features = Array.prototype.slice.call(filterForm.querySelectorAll('input[type="checkbox"]:checked'));
+  var features;
 
   /**
    * Фильтр данных по значению селекта
@@ -63,7 +63,7 @@
    */
   var filterFeatures = function (ad) {
     return features.every(function (feature) {
-      return ad.offer.features.indexOf(feature) !== -1;
+      return ad.offer.features.indexOf(feature.value) !== -1;
     });
   };
 
@@ -79,6 +79,7 @@
       return select.value !== 'any';
     });
 
+    features = Array.prototype.slice.call(filterForm.querySelectorAll('input[type="checkbox"]:checked'));
     activeFilters.forEach(function (select) {
       filteredData = filteredData.filter(filters[select.id]);
     });
