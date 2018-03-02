@@ -196,8 +196,9 @@
           <label>Фотографии жилья</label>
           <div class="form__photo-container">
             <div class="upload">
-              <input type="file" id="images">
+              <input type="file" id="images" multiple>
               <label for="images" class="drop-zone">Загрузите или&nbsp;перетащите сюда фото</label>
+              <div class="upload__preview upload__preview--photos"></div>
             </div>
           </div>
         </fieldset>
@@ -249,6 +250,7 @@
     </button>
   </template>
   <script src="js/filter.js"></script>
+  <script src="js/upload-photo.js"></script>
   <script src="js/alert.js"></script>
   <script src="js/backend.js"></script>
   <script src="js/utils.js"></script>
