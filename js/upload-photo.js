@@ -94,8 +94,11 @@
     while (housePhoto.firstChild) {
       housePhoto.removeChild(housePhoto.firstChild);
     }
-    avatarPreview.removeChild(avatarPreview.children[0]);
-    avatarPreview.appendChild(avatarPlaceholder);
+
+    if (avatarPlaceholder) {
+      avatarPreview.removeChild(avatarPreview.children[0]);
+      avatarPreview.appendChild(avatarPlaceholder);
+    }
   };
 
   var uploadChangeHandler = function (evt) {
