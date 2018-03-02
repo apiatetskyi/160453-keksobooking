@@ -89,9 +89,14 @@
     return filteredData;
   };
 
+  var reset = function () {
+    filterForm.reset();
+  };
+
   window.filter = {
     element: filterForm,
-    apply: apply
+    apply: apply,
+    reset: reset
   };
 
 })();

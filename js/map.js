@@ -37,6 +37,7 @@
     mainPin.style = '';
     pageActivated = false;
     window.form.deactivate();
+    window.filter.reset();
     window.form.setLocation(mainPin.offsetLeft, mainPin.offsetTop);
     window.filter.element.removeEventListener('change', filterChangeHandler);
   };
