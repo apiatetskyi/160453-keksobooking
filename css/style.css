@@ -456,16 +456,20 @@ textarea:focus
 .popup__pictures
 {
     display: flex;
+    flex-wrap: wrap;
+    max-height: 150px;
+    overflow-y: auto;
 }
 
 .popup__pictures li
 {
-    flex: 1 1 33.333%;
+    flex: 0 calc(33.333% - 5px);
     height: 45px;
     overflow: hidden;
+    margin-bottom: 5px;
 }
 
-.popup__pictures li:not(:last-child)
+.popup__pictures li:not(:nth-child(3n))
 {
     margin-right: 5px;
 }
