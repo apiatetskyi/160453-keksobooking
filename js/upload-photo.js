@@ -10,6 +10,7 @@
   var dropZones = document.querySelectorAll('.drop-zone');
   var uploadedPhotos = 0;
   var draggedPhoto = null;
+  var avatarPlaceholder = null;
 
   var uploaders = {
     'avatar': function (files) {
@@ -49,7 +50,10 @@
         previewContainer.appendChild(photo);
 
         if (onlyOne) {
-          previewContainer.removeChild(previewContainer.children[0]);
+          var removedNode = previewContainer.removeChild(previewContainer.children[0]);
+          if (removedNode.src.endsWith('img/muffin.png')) {
+            avatarPlaceholder = removedNode;
+          }
         }
       });
 
@@ -81,6 +85,17 @@
         evt.stopPropagation();
       });
     });
+  };
+
+  /**
+   * Возвращает блоки с превью в исходное состояние
+   */
+  var clear = function () {
+    while (housePhoto.firstChild) {
+      housePhoto.removeChild(housePhoto.firstChild);
+    }
+    avatarPreview.removeChild(avatarPreview.children[0]);
+    avatarPreview.appendChild(avatarPlaceholder);
   };
 
   var uploadChangeHandler = function (evt) {
@@ -141,4 +156,8 @@
   uploadInputs.forEach(function (input) {
     input.addEventListener('change', uploadChangeHandler);
   });
+
+  window.uploadPhoto = {
+    clear: clear
+  };
 })();

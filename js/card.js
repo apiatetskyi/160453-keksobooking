@@ -29,11 +29,9 @@
   /**
    * Создает карточку объявления
    * @param  {AdData} adData
+   * @return {Node}
    */
-  var open = function (adData) {
-    if (currentCard) {
-      close();
-    }
+  var create = function (adData) {
     var card = document.querySelector('template').content.querySelector('.popup').cloneNode(true);
     var closeButton = card.querySelector('.popup__close');
     var featuresContainer = card.querySelector('.popup__features');
@@ -59,6 +57,18 @@
     closeButton.addEventListener('click', function () {
       close();
     });
+
+    return card;
+  };
+
+  /**
+   * Открывает карточку
+   * @param {Node} card
+   */
+  var open = function (card) {
+    if (currentCard) {
+      close();
+    }
 
     currentCard = card;
     window.map.element.appendChild(currentCard);
@@ -113,6 +123,7 @@
   };
 
   window.card = {
+    create: create,
     open: open,
     close: close
   };

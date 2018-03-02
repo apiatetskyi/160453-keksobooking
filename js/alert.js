@@ -1,6 +1,7 @@
 'use strict';
 
 (function () {
+  var SHOW_TIME = 4000;
   var currentAlert = null;
   var timeoutId;
 
@@ -25,7 +26,7 @@
       document.body.removeChild(currentAlert);
       currentAlert = null;
       clearTimeout(timeoutId);
-    }, 4000);
+    }, SHOW_TIME);
   };
 
   window.showAlert = showAlert;

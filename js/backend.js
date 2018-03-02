@@ -1,6 +1,15 @@
 'use strict';
 
 (function () {
+  var RESPONCE_TIMEOUT = 15000;
+  /**
+   * Коды ответа сервера
+   * @enum {number}
+   */
+  var Code = {
+    SUCCESS: 200
+  };
+
   /**
    * Адреса запросов
    */
@@ -23,11 +32,11 @@
    */
   var initRequest = function (successHandler, errorHandler) {
     var xhr = new XMLHttpRequest();
-    xhr.timeout = 10000;
+    xhr.timeout = RESPONCE_TIMEOUT;
     xhr.responseType = 'json';
 
     xhr.addEventListener('load', function () {
-      if (xhr.status === 200) {
+      if (xhr.status === Code.SUCCESS) {
         successHandler(xhr.response);
       } else {
         errorHandler();

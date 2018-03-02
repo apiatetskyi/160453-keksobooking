@@ -69,8 +69,8 @@
 
   /**
    * Применяет фильтр к переданным данным
-   * @param {Array} data
-   * @return {Array} Возвращает отфильтрованные данные
+   * @param {Array.<AdData>} data
+   * @return {Array.<AdData>} Возвращает отфильтрованные данные
    */
   var apply = function (data) {
     var filteredData = data.slice();

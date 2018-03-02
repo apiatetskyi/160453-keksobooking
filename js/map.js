@@ -1,8 +1,10 @@
 'use strict';
 
 (function () {
-  var MIN_Y = 150;
-  var MAX_Y = 500;
+  var CoordsLimitation = {
+    MIN_Y: 150,
+    MAX_Y: 500
+  };
 
   /**
    * Размеры главного пина
@@ -37,6 +39,7 @@
     mainPin.style = '';
     pageActivated = false;
     window.form.deactivate();
+    window.uploadPhoto.clear();
     window.filter.reset();
     window.form.setLocation(mainPin.offsetLeft, mainPin.offsetTop);
     window.filter.element.removeEventListener('change', filterChangeHandler);
@@ -81,7 +84,7 @@
       addressY = mainPin.offsetTop - shift.y;
       addressX = mainPin.offsetLeft - shift.x;
 
-      if (addressY + correction > MAX_Y || addressY + correction < MIN_Y) {
+      if (addressY + correction > CoordsLimitation.MAX_Y || addressY + correction < CoordsLimitation.MIN_Y) {
         addressY = mainPin.offsetTop;
       }
 

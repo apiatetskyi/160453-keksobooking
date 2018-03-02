@@ -6,16 +6,6 @@
   var timeoutId;
 
   /**
-   * Возвращает случайное число в указанном диапазоне
-   * @param  {number} min
-   * @param  {number} max
-   * @return {number}
-   */
-  var getRandomNumber = function (min, max) {
-    return Math.floor(Math.random() * (max + 1 - min) + min);
-  };
-
-  /**
    * Склоняет существительное на основе числителя и переданных форм
    * @param  {number} number
    * @param  {Object} forms
@@ -81,7 +71,6 @@
   }
 
   window.utils = {
-    getRandomNumber: getRandomNumber,
     declensionOfNoun: declensionOfNoun,
     syncSelects: syncSelects,
     syncInputToSelect: syncInputToSelect,
