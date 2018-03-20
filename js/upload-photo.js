@@ -91,6 +91,7 @@
    * Возвращает блоки с превью в исходное состояние
    */
   var clear = function () {
+    uploadedPhotos = 0;
     while (housePhoto.firstChild) {
       housePhoto.removeChild(housePhoto.firstChild);
     }
